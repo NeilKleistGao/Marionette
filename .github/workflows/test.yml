@@ -8,4 +8,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Test
-        run: dotnet test tests/tests.csproj
+        run: ./script/test_all.sh
