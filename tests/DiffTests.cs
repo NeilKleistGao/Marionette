@@ -1,13 +1,7 @@
 using System.Diagnostics;
+using System.Text;
 
 namespace tests;
-
-public enum GitStatus {
-  Modified,
-  Renamed,
-  Added,
-  Other
-}
 
 enum TestResult {
   Success,
@@ -15,8 +9,60 @@ enum TestResult {
   Timeout
 }
 
+struct TestMode {
+  public bool DebugAll {
+    get {
+      return DebugParse && DebugCodegen;
+    }
+    set {
+      DebugParse = DebugCodegen = value;
+    }
+  }
+  public bool DebugParse {
+    get; set;
+  }
+  public bool DebugCodegen {
+    get; set;
+  }
+  public bool PrintAll {
+    get {
+      return PrintParse && PrintCodegen;
+    }
+    set {
+      PrintParse = PrintCodegen = value;
+    }
+  }
+  public bool PrintParse {
+    get; set;
+  }
+  public bool PrintCodegen {
+    get; set;
+  }
+  public bool NoExecution {
+    get; set;
+  }
+  public bool ExpectError {
+    get; set;
+  }
+  public bool Fixme {
+    get; set;
+  }
+  public bool Todo {
+    get; set;
+  }
+
+  public TestMode() {
+    DebugAll = false;
+    PrintAll = false;
+    NoExecution = false;
+    ExpectError = false;
+    Fixme = false;
+    Todo = false;
+  }
+}
+
 public class GitDiffData: IDisposable {
-  private Dictionary<string, GitStatus> fileStatus = new Dictionary<string, GitStatus>();
+  private HashSet<string> modifiedSet = new HashSet<string>();
 
   public GitDiffData() {
     var shell = new Process();
@@ -38,22 +84,18 @@ public class GitDiffData: IDisposable {
 
       string s = line.TrimStart()[..2];
       string path = line[(line.LastIndexOf("/") + 1)..];
-      path = path[..(path.Length - 1)];
       if (path.EndsWith(DiffTests.testExtension)) {
-        var status = GitStatus.Other;
+        bool flag = false;
         switch (s) {
-          case "A ":
           case "??":
-            status = GitStatus.Added;
-            break;
           case "M ":
-            status = GitStatus.Modified;
-            break;
           case "R ":
-            status = GitStatus.Renamed;
+            flag = true;
             break;
         }
-        fileStatus[path] = status;
+        if (flag) {
+          modifiedSet.Add(path);
+        }
       }
     });
   }
@@ -61,9 +103,7 @@ public class GitDiffData: IDisposable {
   public void Dispose(){}
 
   public bool NeedToTest(string filename) {
-    GitStatus s;
-    bool flag = fileStatus.TryGetValue(filename, out s);
-    return fileStatus.Count == 0 ? true : !flag && s != GitStatus.Other;
+    return modifiedSet.Count == 0 | modifiedSet.Contains(filename);
   }
 }
 
@@ -83,10 +123,24 @@ public class DiffTests: IClassFixture<GitDiffData> {
   public void ExecuteDiffTests(string filename) {
     string caseName = filename[(filename.LastIndexOf("/") + 1)..];
     Skip.IfNot(diffData.NeedToTest(caseName));
+
     var reader = new StreamReader(filename);
+    string data = reader.ReadToEnd();
+    reader.Close();
+    string[] lines = data.Split("\n");
     var result = TestResult.Success;
+    var outputBuilder = new StringBuilder();
+    var mode = new TestMode(); 
     DateTime begin = DateTime.Now;
-    // TODO: test
+
+    for (int i = 0; i < lines.Length; ++i) {
+      outputBuilder.Append(lines[i]); // TODO: test
+
+      if (i != lines.Length - 1) {
+        outputBuilder.Append('\n');
+      }
+    }
+
     DateTime end = DateTime.Now;
     int time = (end - begin).Milliseconds;
     var color = ConsoleColor.Green;
@@ -101,8 +155,13 @@ public class DiffTests: IClassFixture<GitDiffData> {
     Console.ForegroundColor = color;
     Console.WriteLine("> Case " + caseName + ": " + time.ToString() + " ms.");
     Console.ForegroundColor = backup;
-    Console.WriteLine();
-    reader.Close();
+
+    var output = outputBuilder.ToString();
+    if (data != output) {
+      var writer = new StreamWriter(filename, false);
+      writer.Write(output);
+      writer.Close();
+    }
   }
 
   public static IEnumerable<object[]> GetFileList() {
