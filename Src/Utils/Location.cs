@@ -8,4 +8,4 @@ namespace Marionette.Utils {
   }
 
   public record Location(Position start, Position end);
-}
+} // namespace Marionette.Utils

@@ -3,8 +3,8 @@ using System;
 namespace Marionette.Utils {
   public enum ErrorType {
     ParseError,
-    CodegenError
+    RuntimeError
   }
 
   public record Diagnosis(ErrorType type, string message, Location location);
-}
+} // namespace Marionette.Utils
