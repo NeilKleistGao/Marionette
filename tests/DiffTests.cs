@@ -110,7 +110,7 @@ public class GitDiffData: IDisposable {
 public class DiffTests: IClassFixture<GitDiffData> {
   private readonly static int timeLimit = 3000; // ms
 
-  public readonly static string testPath = "../../../mario";
+  public readonly static string testPath = "../../../Mario";
   public readonly static string testExtension = ".mario";
 
   private GitDiffData diffData;
