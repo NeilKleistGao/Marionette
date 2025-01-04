@@ -8,6 +8,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Test
-        run: ./scripts/test_all.sh
+        run: ./Scripts/test_all.sh
       - name: Check no changes
         run: git diff-files -p --exit-code
