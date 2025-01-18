@@ -50,4 +50,18 @@ namespace Marionette.Utils {
       return value == null || value.Count == 0;
     }
   }
+
+  public static class ArrayExtensions {
+    public static List<T> TakeWhile<T>(this T[] value, Func<T, bool> predicate, int from = 0) {
+      var res = new List<T>();
+      for (int i = from; i < value.Length; ++i) {
+        if (predicate(value[i])) {
+          res.Add(value[i]);
+        }
+        else { break; }
+      }
+
+      return res;
+    }
+  }
 } // namespace Marionette.Utils

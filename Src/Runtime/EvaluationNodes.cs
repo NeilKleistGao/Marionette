@@ -1,7 +1,7 @@
 using Marionette.Parser;
 
 namespace Marionette.Runtime {
-  public class EvalIntLit : IntLiteral<Value, Environment> {
+  public class EvalIntLit: IntLiteral<Value, Environment> {
     public override Value Evaluate(Environment env) {
       return new LiteralValue<int>(Value);
     }
@@ -11,7 +11,7 @@ namespace Marionette.Runtime {
     }
   }
 
-  public class EvalNumberLit : NumberLiteral<Value, Environment> {
+  public class EvalNumberLit: NumberLiteral<Value, Environment> {
     public override Value Evaluate(Environment env) {
       return new LiteralValue<double>(Value);
     }
@@ -19,5 +19,11 @@ namespace Marionette.Runtime {
     public EvalNumberLit(double d) {
       this.Value = d;
     } 
+  }
+
+  public class EvalEOF: EOF<Value, Environment> {
+    public override Value Evaluate(Environment env) {
+      return new UnitValue();
+    }
   }
 } // namespace Marionette.Runtime

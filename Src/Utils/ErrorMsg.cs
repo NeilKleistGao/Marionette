@@ -6,5 +6,5 @@ namespace Marionette.Utils {
     RuntimeError
   }
 
-  public record Diagnosis(ErrorType type, string message, Location location);
+  public record Diagnosis(ErrorType type, string message, Location location); // TODO: pp
 } // namespace Marionette.Utils

@@ -33,7 +33,7 @@ namespace Marionette.Parser {
       position = new Position(0, 1);
     }
 
-    private string Consume(int length) {
+    private void Consume(int length) {
       if (rest.Length < length) {
         throw new ArgumentException("Invalid length of string.");
       }
@@ -50,46 +50,43 @@ namespace Marionette.Parser {
         int last = res.LastIndexOf('\n');
         position &= res.Length - last + 1;
       }
-
-      return res;
     }
 
-    private void DropAll() {
+    private void ConsumeAll() {
       Consume(rest.Length);
-    }
-
-    private void Drop(int length) {
-      Consume(length);
     }
 
     private IEvaluatable<TRes, TEnv> Parse() {
       var startPos = position;
-      if (rest.StartsWith(";;")) {
-        rest = Consume(2);
+      if (rest.IsEmpty()) {
+        return allocateEOF();
+      }
+      else if (rest.StartsWith(";;")) {
+        Consume(2);
         int index = rest.IndexOf('\n');
         if (index < 0) {
-          DropAll();
+          ConsumeAll();
           return allocateEOF();
         }
         else {
-          rest = Consume(index + 1);
+          Consume(index + 1);
           return Parse();
         }
       }
       else if (rest.StartsWith("#|")) {
-        rest = Consume(2);
+        Consume(2);
         int index = rest.IndexOf("|#");
         if (index < 0) {
-          DropAll();
+          ConsumeAll();
           return new ParseError<TRes, TEnv>("Unexpected EOF.", new Location(startPos, position));
         }
         else {
-          rest = Consume(index + 1);
+          Consume(index + 2);
           return Parse();
         }
       }
       else if (rest.StartsWith('(')) {
-        rest = Consume(1);
+        Consume(1);
         var list = allocateList();
         do {
           var subterm = Parse();
@@ -97,7 +94,7 @@ namespace Marionette.Parser {
         } while (!rest.IsEmpty() && !rest.StartsWith(')'));
 
         if (rest.StartsWith(')')) {
-          rest = Consume(1);
+          Consume(1);
           return list;
         }
         else {
@@ -105,17 +102,17 @@ namespace Marionette.Parser {
         }
       }
       else if (rest.StartsWithChar(char.IsWhiteSpace)) {
-        rest = Consume(1);
+        Consume(1);
         return Parse();
       }
       else if (rest.StartsWithDigit()) {
         string text = rest.TakeWhile(c => c.IsDigitComponent());
-        Drop(text.Length);
+        Consume(text.Length);
         return allocateLiteral(text);
       } // TODO: string
       else {
         string symbol = rest.TakeWhile(c => !c.IsDelimiter());
-        Drop(symbol.Length);
+        Consume(symbol.Length);
         return allocateSymbol(symbol);
       }
     }

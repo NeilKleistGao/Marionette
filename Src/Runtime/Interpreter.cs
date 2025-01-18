@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using Marionette.Parser;
 using Marionette.Utils;
 
@@ -52,7 +49,7 @@ namespace Marionette.Runtime {
     }
 
     private EOF<Value, Environment> AllocateEOF() {
-      throw new NotImplementedException();
+      return new EvalEOF();
     }
 
     public Result Interpret(string code) {

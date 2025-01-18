@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Text;
+using Marionette.Runtime;
+using Marionette.Utils;
 
 namespace tests;
 
@@ -88,7 +90,8 @@ public class GitDiffData: IDisposable {
         bool flag = false;
         switch (s) {
           case "??":
-          case "M ":
+          case "MM":
+          case " M":
           case "R ":
             flag = true;
             break;
@@ -110,6 +113,9 @@ public class GitDiffData: IDisposable {
 public class DiffTests: IClassFixture<GitDiffData> {
   private readonly static int timeLimit = 3000; // ms
 
+  private readonly static string testOutputPrefix = ";;|| ";
+  private readonly static string testOutputIndicator = ";;|| --- Result --- ||";
+
   public readonly static string testPath = "../../../Mario";
   public readonly static string testExtension = ".mario";
 
@@ -128,13 +134,48 @@ public class DiffTests: IClassFixture<GitDiffData> {
     string data = reader.ReadToEnd();
     reader.Close();
     string[] lines = data.Split("\n");
-    var result = TestResult.Success;
+    var resultFlag = TestResult.Success;
     var outputBuilder = new StringBuilder();
-    var mode = new TestMode(); 
-    DateTime begin = DateTime.Now;
+    var interpreter = new Interpreter();
+    DateTime begin = DateTime.Now;    
 
     for (int i = 0; i < lines.Length; ++i) {
-      outputBuilder.Append(lines[i]); // TODO: test
+      if (lines[i].IsEmpty()) {
+        outputBuilder.Append(lines[i]);
+      }
+      else {
+        var codeBuilder = new StringBuilder();
+        var block = lines.TakeWhile(ln => !ln.IsEmpty(), i);
+        
+        foreach (var line in block) { // TODO: test flags
+          if (line.StartsWith(testOutputIndicator)) {
+            break; // drop the test outputs
+          }
+          outputBuilder.AppendLine(line);
+          codeBuilder.AppendLine(line);
+        }
+
+        i += block.Count - 1;
+
+        var result = interpreter.Interpret(codeBuilder.ToString().Trim());
+        if (result.Succeeded) {
+          var value = result.Value;
+          if (value is not UnitValue) {
+            outputBuilder.AppendLine(testOutputIndicator);
+            outputBuilder.AppendLine(testOutputPrefix + "Res: " + value.Show());
+          }
+        }
+        else {
+          resultFlag = TestResult.Fail; // TODO: test flags
+          outputBuilder.AppendLine(testOutputIndicator);
+          foreach (var errors in result.Diagnosis) {
+            outputBuilder.AppendLine(testOutputPrefix + errors.ToString());
+          }
+        }
+
+        outputBuilder.Remove(outputBuilder.Length - 1, 1);
+      }
+      
 
       if (i != lines.Length - 1) {
         outputBuilder.Append('\n');
@@ -145,10 +186,10 @@ public class DiffTests: IClassFixture<GitDiffData> {
     int time = (end - begin).Milliseconds;
     var color = ConsoleColor.Green;
 
-    if (result == TestResult.Success && time > timeLimit) {
+    if (resultFlag == TestResult.Success && time > timeLimit) {
       color = ConsoleColor.Gray;
     }
-    else if (result == TestResult.Fail) {
+    else if (resultFlag == TestResult.Fail) {
       color = ConsoleColor.Red;
     }
     ConsoleColor backup = Console.ForegroundColor;
@@ -162,6 +203,8 @@ public class DiffTests: IClassFixture<GitDiffData> {
       writer.Write(output);
       writer.Close();
     }
+
+    Assert.True(resultFlag == TestResult.Success);
   }
 
   public static IEnumerable<object[]> GetFileList() {

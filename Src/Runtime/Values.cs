@@ -1,5 +1,7 @@
 namespace Marionette.Runtime {
-  public abstract class Value {}
+  public abstract class Value {
+    public abstract string Show();
+  }
 
   public class LiteralValue<T> : Value {
     private T value;
@@ -11,11 +13,19 @@ namespace Marionette.Runtime {
     public T Value {
       get => this.value;
     }
+
+    public override string Show() {
+      return value?.ToString() ?? "";
+    }
   }
 
-  public class UnitValue: Value {}
+    public class UnitValue : Value {
+      public override string Show() {
+        return "";
+      }
+    }
 
-  public class Result {
+    public class Result {
     private bool succeeded = false;
     private List<Utils.Diagnosis> diagnosis = new List<Utils.Diagnosis>();
     private Value value = new UnitValue();
