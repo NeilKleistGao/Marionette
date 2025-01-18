@@ -31,13 +31,31 @@ namespace Marionette.Runtime {
       else if (text == "false") {
         // TODO: bool
       }
+      else if (text.Contains(".") || text.Contains("e") || text.Contains("E")) {
+        return new EvalNumberLit(Convert.ToDouble(text));
+      }
       else {
-        int i; double d;
-        if (int.TryParse(text, out i)) {
-          return new EvalIntLit(i);
+        text = text.ToLower();
+        int flag = 1;
+        if (text.StartsWith("-")) {
+          flag = -1;
+          text = text[1..];
         }
-        else if (double.TryParse(text, out d)) {
-          return new EvalNumberLit(d);
+        else if (text.StartsWith("+")) {
+          text = text[1..];
+        }
+
+        if (text.StartsWith("0x")) {
+          return new EvalIntLit(flag * Convert.ToInt32(text[2..], 16));
+        }
+        else if (text.StartsWith("0b")) {
+          return new EvalIntLit(flag * Convert.ToInt32(text[2..], 2));
+        }
+        else if (text.StartsWith("0")) {
+          return new EvalIntLit(flag * Convert.ToInt32(text[1..], 8));
+        }
+        else {
+          return new EvalIntLit(flag * Convert.ToInt32(text));
         }
       }
 

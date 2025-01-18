@@ -40,8 +40,9 @@ namespace Marionette.Utils {
     }
 
     public static bool IsDigitComponent(this char value) {
-      return char.IsDigit(value) || value == '.' || char.ToLower(value) == 'e' || value == '_' ||
-        char.ToLower(value) == 'x' || char.ToLower(value) == 'b' || char.ToLower(value) == 'p';
+      return char.IsDigit(value) || value == '.'  || value == '+' || value == '-' || char.ToLower(value) == 'e' ||
+        char.ToLower(value) == 'x' || char.ToLower(value) == 'b' || char.ToLower(value) == 'a' || char.ToLower(value) == 'b' ||
+        char.ToLower(value) == 'c' || char.ToLower(value) == 'd' || char.ToLower(value) == 'f';
     }
   }
 
