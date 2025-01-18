@@ -13,17 +13,19 @@ namespace Marionette.Runtime {
     }
   }
 
+  public class UnitValue: Value {}
+
   public class Result {
     private bool succeeded = false;
-    private Utils.Diagnosis diagnosis = null;
-    private Value value = null;
+    private List<Utils.Diagnosis> diagnosis = new List<Utils.Diagnosis>();
+    private Value value = new UnitValue();
 
     public Result(Value value) {
       this.value = value;
       this.succeeded = true;
     }
 
-    public Result(Utils.Diagnosis diagnosis) {
+    public Result(List<Utils.Diagnosis> diagnosis) {
       this.diagnosis = diagnosis;
       this.succeeded = false;
     }
@@ -35,13 +37,13 @@ namespace Marionette.Runtime {
     public Value Value {
       get {
         if (succeeded) { return value; }
-        else { return null; }
+        else { throw new Exception("Value is invalid."); }
       }
     }
 
-    public Utils.Diagnosis Diagnosis {
+    public List<Utils.Diagnosis> Diagnosis {
       get {
-        if (succeeded) { return null; }
+        if (succeeded) { throw new Exception("No Errors found."); }
         else { return diagnosis; }
       }
     }

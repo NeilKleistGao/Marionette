@@ -21,7 +21,7 @@ namespace Marionette.Parser {
   }
 
   public abstract class Literal<TRes, TEnv>: IEvaluatable<TRes, TEnv> {
-    public TRes Evaluate(TEnv env) {
+    public virtual TRes Evaluate(TEnv env) {
       throw new NotImplementedException();
     }
   }
@@ -65,6 +65,10 @@ namespace Marionette.Parser {
 
     public TRes Evaluate(TEnv env) {
       throw new Exception("Parse error: " + message); // TODO: pp
+    }
+
+    public Diagnosis ToDiagnosis() {
+      return new Diagnosis(ErrorType.ParseError, this.message, this.location);
     }
   }
 } // namespace Marionette.Parser

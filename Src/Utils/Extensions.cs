@@ -44,4 +44,10 @@ namespace Marionette.Utils {
         char.ToLower(value) == 'x' || char.ToLower(value) == 'b' || char.ToLower(value) == 'p';
     }
   }
+
+  public static class ListExtensions {
+    public static bool IsEmpty<T>(this List<T> value) {
+      return value == null || value.Count == 0;
+    }
+  }
 } // namespace Marionette.Utils
