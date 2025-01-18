@@ -84,7 +84,7 @@ public class GitDiffData: IDisposable {
     Array.ForEach(res.Split('\n'), line => {
       if (line.Length < 3) { return; }
 
-      string s = line.TrimStart()[..2];
+      string s = line[..2];
       string path = line[(line.LastIndexOf("/") + 1)..];
       if (path.EndsWith(DiffTests.testExtension)) {
         bool flag = false;
