@@ -12,7 +12,7 @@ namespace Marionette.Parser {
     protected List<IEvaluatable<TRes, TEnv>> list = new List<IEvaluatable<TRes, TEnv>>();
 
     public void Append(IEvaluatable<TRes, TEnv> res) {
-      list.Append(res);
+      list.Add(res);
     }
 
     public abstract TRes Evaluate(TEnv env);
@@ -39,7 +39,7 @@ namespace Marionette.Parser {
   }
 
   public abstract class Symbol<TRes, TEnv>: IEvaluatable<TRes, TEnv> {
-    private string name;
+    protected string name;
 
     public abstract TRes Evaluate(TEnv env);
 

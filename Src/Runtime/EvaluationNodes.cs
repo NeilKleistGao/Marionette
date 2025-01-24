@@ -1,4 +1,5 @@
 using Marionette.Parser;
+using Marionette.Utils;
 
 namespace Marionette.Runtime {
   public class EvalIntLit: IntLiteral<Value, Environment> {
@@ -39,6 +40,33 @@ namespace Marionette.Runtime {
     public EvalStringLit(string s) {
       Value = s;
     } 
+  }
+
+  public class EvalList: ResultList<Value, Environment> {
+    public EvalList() {}
+
+    public override Value Evaluate(Environment env){
+      if (list.IsEmpty()) {
+        throw new Exception("Empty invocation.");
+      }
+
+      var fun = list[0].Evaluate(env); // TODO: 
+      if (fun is Closure closure) {
+        list.RemoveAt(0);
+        return closure.Evaluate(list.Map(x => x.Evaluate(env)).ToArray());
+      }
+      else {
+        throw new Exception(string.Format("{0} is not a function.", fun.Show()));
+      }
+    }
+  }
+
+  public class EvalSymbol: Symbol<Value, Environment> {
+    public override Value Evaluate(Environment env){
+      return env.GetOrElse(name, n => throw new Exception(string.Format("name not found: {0}", n)));
+    }
+
+    public EvalSymbol(string name) : base(name) {}
   }
 
   public class EvalEOF: EOF<Value, Environment> {

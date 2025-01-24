@@ -1,3 +1,5 @@
+using Marionette.Parser;
+
 namespace Marionette.Runtime {
   public abstract class Value {
     public abstract string Show();
@@ -19,13 +21,42 @@ namespace Marionette.Runtime {
     }
   }
 
-    public class UnitValue : Value {
-      public override string Show() {
-        return "";
-      }
+  public class Closure : Value {
+    private string[] bindings;
+    private Environment environment;
+    private IEvaluatable<Value, Environment> body;
+
+    public override string Show() {
+      return "[Function]";
     }
 
-    public class Result {
+    public Closure(string[] bindings, Environment environment, IEvaluatable<Value, Environment> body) {
+      this.bindings = bindings;
+      this.environment = environment;
+      this.body = body;
+    }
+
+    public Value Evaluate(Value[] values) {
+      if (bindings.Length != values.Length) {
+        throw new Exception(string.Format("Expect {0} argument{1}, got {2}", bindings.Length, (bindings.Length > 1) ? "s" : "", values.Length));
+      }
+
+      var nestCxt = new Environment(environment);
+      foreach (var p in bindings.Zip(values)) {
+        nestCxt.Add(p.First, p.Second);
+      }
+
+      return body.Evaluate(nestCxt);
+    }
+  }
+
+  public class UnitValue : Value {
+    public override string Show() {
+      return "";
+    }
+  }
+
+  public class Result {
     private bool succeeded = false;
     private List<Utils.Diagnosis> diagnosis = new List<Utils.Diagnosis>();
     private Value value = new UnitValue();

@@ -61,6 +61,15 @@ namespace Marionette.Utils {
     public static bool IsEmpty<T>(this List<T> value) {
       return value == null || value.Count == 0;
     }
+
+    public static List<S> Map<T, S>(this List<T> value, Func<T, S> func) {
+      var res = new List<S>();
+      foreach (var item in value) {
+        res.Add(func(item));
+      }
+
+      return res;
+    }
   }
 
   public static class ArrayExtensions {

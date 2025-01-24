@@ -5,20 +5,45 @@ namespace Marionette.Runtime {
   public class Environment {
     private Dictionary<string, Value> env = new Dictionary<string, Value>();
 
+    private Environment? parent = null;
+
     private Environment() {
+      env.Add("+", new Closure(["lhs", "rhs"], globalEnvironment, new BinaryOperator("+")));
     }
 
-    public static Environment CreateEmpty() {
-      return new Environment();
+    public Environment(Environment parent) {
+      this.parent = parent;
+    }
+
+    private static Environment globalEnvironment = new Environment();
+
+    public static Environment GlobalEnvironment() {
+      return globalEnvironment;
+    }
+
+    public void Add(string name, Value value) {
+      env[name] = value;
+    }
+
+    public Value GetOrElse(string name, Func<string, Value> fallback) {
+      if (env.ContainsKey(name)) {
+        return env[name];
+      }
+      else if (parent is Environment p) {
+        return parent.GetOrElse(name, fallback);
+      }
+      else {
+        return fallback(name);
+      }
     }
   }
 
   public class Interpreter {
 
-    private Environment env = Environment.CreateEmpty();
+    private Environment env = Environment.GlobalEnvironment();
 
     private ResultList<Value, Environment> AllocateList() {
-      throw new NotImplementedException();
+      return new EvalList();
     }
 
     private Literal<Value, Environment> AllocateLiteral(string text) {
@@ -51,7 +76,7 @@ namespace Marionette.Runtime {
         else if (text.StartsWith("0b")) {
           return new EvalIntLit(flag * Convert.ToInt32(text[2..], 2));
         }
-        else if (text.StartsWith("0")) {
+        else if (text.StartsWith("0") && text.Length > 1) {
           return new EvalIntLit(flag * Convert.ToInt32(text[1..], 8));
         }
         else {
@@ -63,7 +88,7 @@ namespace Marionette.Runtime {
     }
 
     private Symbol<Value, Environment> AllocateSymbol(string name) {
-      throw new NotImplementedException();
+      return new EvalSymbol(name);
     }
 
     private EOF<Value, Environment> AllocateEOF() {
