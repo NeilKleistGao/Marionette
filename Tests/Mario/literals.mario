@@ -57,21 +57,44 @@
 1.1.1
 ;;|| --- Result --- ||
 ;;|| [Parse Error]: 1.1.1 is not a valid number literal.
-;;||  1 | 1.1.1
-;;||      ^^^^^
+;;||  57 | 1.1.1
+;;||       ^^^^^
 
 
 :e
 123abc
 ;;|| --- Result --- ||
 ;;|| [Parse Error]: 123abc is not a valid number literal.
-;;||  1 | 123abc
-;;||      ^^^^^^
+;;||  65 | 123abc
+;;||       ^^^^^^
 
 
 :e
 0x
 ;;|| --- Result --- ||
 ;;|| [Parse Error]: 0x is not a valid number literal.
-;;||  1 | 0x
-;;||      ^^
+;;||  73 | 0x
+;;||       ^^
+
+
+#t
+;;|| --- Result --- ||
+;;|| Res: True
+
+
+#f
+;;|| --- Result --- ||
+;;|| Res: False
+
+
+"abc"
+;;|| --- Result --- ||
+;;|| Res: abc
+
+
+:e
+"a
+;;|| --- Result --- ||
+;;|| [Parse Error]: Unfinished string.
+;;||  96 | "a
+;;||       ^^

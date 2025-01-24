@@ -23,13 +23,13 @@ namespace Marionette.Runtime {
 
     private Literal<Value, Environment> AllocateLiteral(string text) {
       if (text.StartsWith('"')) {
-        // TODO: string
+        return new EvalStringLit(text[1..^1]);
       }
-      else if (text == "true") {
-        // TODO: bool
+      else if (text == "#t") {
+        return new EvalBoolLit(true);
       }
-      else if (text == "false") {
-        // TODO: bool
+      else if (text == "#f") {
+        return new EvalBoolLit(false);
       }
       else if (text.Contains(".") || text.Contains("e") || text.Contains("E")) {
         return new EvalNumberLit(Convert.ToDouble(text));

@@ -7,7 +7,7 @@ namespace Marionette.Runtime {
     }
 
     public EvalIntLit(int i) {
-      this.Value = i;
+      Value = i;
     }
   }
 
@@ -17,7 +17,27 @@ namespace Marionette.Runtime {
     }
 
     public EvalNumberLit(double d) {
-      this.Value = d;
+      Value = d;
+    } 
+  }
+
+  public class EvalBoolLit: BoolLiteral<Value, Environment> {
+    public override Value Evaluate(Environment env) {
+      return new LiteralValue<bool>(Value);
+    }
+
+    public EvalBoolLit(bool b) {
+      Value = b;
+    } 
+  }
+
+  public class EvalStringLit: StringLiteral<Value, Environment> {
+    public override Value Evaluate(Environment env) {
+      return new LiteralValue<string>(Value);
+    }
+
+    public EvalStringLit(string s) {
+      Value = s;
     } 
   }
 

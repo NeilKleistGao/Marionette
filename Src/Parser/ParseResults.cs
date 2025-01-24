@@ -30,7 +30,13 @@ namespace Marionette.Parser {
     public double Value { get; set; }
   }
 
-  // TODO: more literals
+  public abstract class BoolLiteral<TRes, TEnv> : Literal<TRes, TEnv> {
+    public bool Value { get; set; }
+  }
+
+  public abstract class StringLiteral<TRes, TEnv> : Literal<TRes, TEnv> {
+    public string Value { get; set; }
+  }
 
   public abstract class Symbol<TRes, TEnv>: IEvaluatable<TRes, TEnv> {
     private string name;

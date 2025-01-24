@@ -114,7 +114,25 @@ namespace Marionette.Parser {
         catch (Exception) {
           return new ParseError<TRes, TEnv>(string.Format("{0} is not a valid number literal.", text), new Location(startPos, position));
         }
-      } // TODO: string
+      }
+      else if (rest.StartsWith("#t")) {
+        Consume(2);
+        return allocateLiteral("#t");
+      }
+      else if (rest.StartsWith("#f")) {
+        Consume(2);
+        return allocateLiteral("#f");
+      }
+      else if (rest.StartsWith('"')) {
+        Consume(1);
+        string s = rest.TakeWhile(c => c != '\n' && c != '"');
+        Consume(s.Length);
+        if (!rest.StartsWith('"')) {
+          return new ParseError<TRes, TEnv>("Unfinished string.", new Location(startPos, position));
+        }
+        Consume(1);
+        return allocateLiteral(string.Format("\"{0}\"", s));
+      }
       else {
         string symbol = rest.TakeWhile(c => !c.IsDelimiter());
         Consume(symbol.Length);

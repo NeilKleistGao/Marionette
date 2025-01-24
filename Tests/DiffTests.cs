@@ -109,10 +109,12 @@ public class DiffTests: IClassFixture<GitDiffData> {
         var codeBuilder = new StringBuilder();
         var testMode = new TestMode();
         var block = lines.TakeWhile(ln => !ln.IsEmpty(), i);
+        int globalLine = i;
         
         foreach (var line in block) {
           if (ShouldConsumeFlag(line, ref testMode)) {
             outputBuilder.AppendLine(line);
+            ++globalLine;
             continue;
           }
           if (line.StartsWith(testOutputIndicator)) {
@@ -142,7 +144,7 @@ public class DiffTests: IClassFixture<GitDiffData> {
           }
           outputBuilder.AppendLine(testOutputIndicator);
           foreach (var error in result.Diagnosis) {
-            outputBuilder.AppendLine(testOutputPrefix + error.Show(code, testOutputPrefix));
+            outputBuilder.AppendLine(testOutputPrefix + error.Show(code, testOutputPrefix, globalLine));
           }
         }
 
