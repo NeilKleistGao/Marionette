@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace Marionette.Utils {
   public static class StringExtensions {
     public static bool IsEmpty(this string value) {
@@ -31,6 +33,15 @@ namespace Marionette.Utils {
     public static bool StartsWithDigit(this string value) {
       return value.StartsWithChar(char.IsDigit) ||
         value.StartsWithChar(c => c == '+' || c == '-') && value.Length > 1 && char.IsDigit(value.ElementAt(1));
+    }
+
+    public static string Duplicate(this string value, int times) {
+      var builder = new StringBuilder();
+      for (int i = 0; i < times; ++i) {
+        builder.Append(value);
+      }
+
+      return builder.ToString();
     }
   }
 

@@ -108,7 +108,12 @@ namespace Marionette.Parser {
       else if (rest.StartsWithDigit()) {
         string text = rest.TakeWhile(c => c.IsDigitComponent());
         Consume(text.Length);
-        return allocateLiteral(text);
+        try {
+          return allocateLiteral(text);
+        }
+        catch (Exception) {
+          return new ParseError<TRes, TEnv>(string.Format("{0} is not a valid number literal.", text), new Location(startPos, position));
+        }
       } // TODO: string
       else {
         string symbol = rest.TakeWhile(c => !c.IsDelimiter());

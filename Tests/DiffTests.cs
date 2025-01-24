@@ -5,44 +5,7 @@ using Marionette.Utils;
 
 namespace tests;
 
-enum TestResult {
-  Success,
-  Fail,
-  Timeout
-}
-
 struct TestMode {
-  public bool DebugAll {
-    get {
-      return DebugParse && DebugCodegen;
-    }
-    set {
-      DebugParse = DebugCodegen = value;
-    }
-  }
-  public bool DebugParse {
-    get; set;
-  }
-  public bool DebugCodegen {
-    get; set;
-  }
-  public bool PrintAll {
-    get {
-      return PrintParse && PrintCodegen;
-    }
-    set {
-      PrintParse = PrintCodegen = value;
-    }
-  }
-  public bool PrintParse {
-    get; set;
-  }
-  public bool PrintCodegen {
-    get; set;
-  }
-  public bool NoExecution {
-    get; set;
-  }
   public bool ExpectError {
     get; set;
   }
@@ -53,10 +16,9 @@ struct TestMode {
     get; set;
   }
 
+  // TODO: more mode
+
   public TestMode() {
-    DebugAll = false;
-    PrintAll = false;
-    NoExecution = false;
     ExpectError = false;
     Fixme = false;
     Todo = false;
@@ -75,7 +37,7 @@ public class GitDiffData: IDisposable {
     shell.StartInfo.RedirectStandardError = false;
     shell.StartInfo.CreateNoWindow = true;
     shell.Start();
-    shell.StandardInput.WriteLine("git status --porcelain " + String.Join("/", System.Environment.CurrentDirectory, DiffTests.testPath));
+    shell.StandardInput.WriteLine("git status --porcelain " + string.Join("/", System.Environment.CurrentDirectory, DiffTests.testPath));
     shell.StandardInput.Close();
     string res = shell.StandardOutput.ReadToEnd();
     shell.WaitForExit();
@@ -134,7 +96,7 @@ public class DiffTests: IClassFixture<GitDiffData> {
     string data = reader.ReadToEnd();
     reader.Close();
     string[] lines = data.Split("\n");
-    var resultFlag = TestResult.Success;
+    bool succeeded = true;
     var outputBuilder = new StringBuilder();
     var interpreter = new Interpreter();
     DateTime begin = DateTime.Now;    
@@ -145,9 +107,14 @@ public class DiffTests: IClassFixture<GitDiffData> {
       }
       else {
         var codeBuilder = new StringBuilder();
+        var testMode = new TestMode();
         var block = lines.TakeWhile(ln => !ln.IsEmpty(), i);
         
-        foreach (var line in block) { // TODO: test flags
+        foreach (var line in block) {
+          if (ShouldConsumeFlag(line, ref testMode)) {
+            outputBuilder.AppendLine(line);
+            continue;
+          }
           if (line.StartsWith(testOutputIndicator)) {
             break; // drop the test outputs
           }
@@ -157,8 +124,12 @@ public class DiffTests: IClassFixture<GitDiffData> {
 
         i += block.Count - 1;
 
-        var result = interpreter.Interpret(codeBuilder.ToString().Trim());
+        var code = codeBuilder.ToString().Trim();
+        var result = interpreter.Interpret(code);
         if (result.Succeeded) {
+          if (testMode.ExpectError) {
+            succeeded = false;
+          }
           var value = result.Value;
           if (value is not UnitValue) {
             outputBuilder.AppendLine(testOutputIndicator);
@@ -166,10 +137,12 @@ public class DiffTests: IClassFixture<GitDiffData> {
           }
         }
         else {
-          resultFlag = TestResult.Fail; // TODO: test flags
+          if (!testMode.ExpectError && !testMode.Todo && !testMode.Fixme) {
+            succeeded = false;
+          }
           outputBuilder.AppendLine(testOutputIndicator);
-          foreach (var errors in result.Diagnosis) {
-            outputBuilder.AppendLine(testOutputPrefix + errors.ToString());
+          foreach (var error in result.Diagnosis) {
+            outputBuilder.AppendLine(testOutputPrefix + error.Show(code, testOutputPrefix));
           }
         }
 
@@ -186,10 +159,11 @@ public class DiffTests: IClassFixture<GitDiffData> {
     int time = (end - begin).Milliseconds;
     var color = ConsoleColor.Green;
 
-    if (resultFlag == TestResult.Success && time > timeLimit) {
+    if (succeeded && time > timeLimit) {
+      succeeded = false;
       color = ConsoleColor.Gray;
     }
-    else if (resultFlag == TestResult.Fail) {
+    else if (!succeeded) {
       color = ConsoleColor.Red;
     }
     ConsoleColor backup = Console.ForegroundColor;
@@ -204,7 +178,22 @@ public class DiffTests: IClassFixture<GitDiffData> {
       writer.Close();
     }
 
-    Assert.True(resultFlag == TestResult.Success);
+    Assert.True(succeeded);
+  }
+
+  private bool ShouldConsumeFlag(string line, ref TestMode mode) {
+    bool flag = false;
+    if (line.StartsWith(":e")) {
+      flag = mode.ExpectError = true;
+    }
+    else if (line.StartsWith(":todo")) {
+      flag = mode.Todo = true;
+    }
+    else if (line.StartsWith(":fixme")) {
+      flag = mode.Fixme = true;
+    }
+
+    return flag;
   }
 
   public static IEnumerable<object[]> GetFileList() {
