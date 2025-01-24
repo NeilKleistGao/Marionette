@@ -33,7 +33,7 @@ namespace Marionette.Runtime {
 
   public class EvalStringLit: StringLiteral<Value, Environment> {
     public override Value Evaluate(Environment env) {
-      return new LiteralValue<string>(Value);
+      return new LiteralValue<string>(Value??"");
     }
 
     public EvalStringLit(string s) {

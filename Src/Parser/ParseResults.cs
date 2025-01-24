@@ -35,7 +35,7 @@ namespace Marionette.Parser {
   }
 
   public abstract class StringLiteral<TRes, TEnv> : Literal<TRes, TEnv> {
-    public string Value { get; set; }
+    public string? Value { get; set; }
   }
 
   public abstract class Symbol<TRes, TEnv>: IEvaluatable<TRes, TEnv> {
