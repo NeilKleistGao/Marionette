@@ -1,4 +1,5 @@
 using Marionette.Parser;
+using Marionette.Utils;
 
 namespace Marionette.Runtime {
   public abstract class Value {
@@ -17,7 +18,12 @@ namespace Marionette.Runtime {
     }
 
     public override string Show() {
-      return value?.ToString() ?? "";
+      if (value is string s) {
+        return string.Format("\"{0}\"", s);
+      }
+      else {
+        return value?.ToString() ?? "";
+      }
     }
   }
 
@@ -36,9 +42,12 @@ namespace Marionette.Runtime {
       this.body = body;
     }
 
-    public Value Evaluate(Value[] values) {
+    public Value Evaluate(Value[] values, Location? loc) {
       if (bindings.Length != values.Length) {
-        throw new Exception(string.Format("Expect {0} argument{1}, got {2}", bindings.Length, (bindings.Length > 1) ? "s" : "", values.Length));
+        throw new RuntimeException(
+          string.Format("Expect {0} argument{1}, got {2}", bindings.Length, (bindings.Length > 1) ? "s" : "", values.Length),
+          loc
+        );
       }
 
       var nestCxt = new Environment(environment);
@@ -46,7 +55,12 @@ namespace Marionette.Runtime {
         nestCxt.Add(p.First, p.Second);
       }
 
-      return body.Evaluate(nestCxt);
+      try {
+        return body.Evaluate(nestCxt);
+      }
+      catch (RuntimeException ex) {
+        throw new RuntimeException(ex.Message, loc);
+      }
     }
   }
 
@@ -58,7 +72,7 @@ namespace Marionette.Runtime {
 
   public class Result {
     private bool succeeded = false;
-    private List<Utils.Diagnosis> diagnosis = new List<Utils.Diagnosis>();
+    private List<Diagnosis> diagnosis = new List<Diagnosis>();
     private Value value = new UnitValue();
 
     public Result(Value value) {
@@ -66,7 +80,7 @@ namespace Marionette.Runtime {
       this.succeeded = true;
     }
 
-    public Result(List<Utils.Diagnosis> diagnosis) {
+    public Result(List<Diagnosis> diagnosis) {
       this.diagnosis = diagnosis;
       this.succeeded = false;
     }

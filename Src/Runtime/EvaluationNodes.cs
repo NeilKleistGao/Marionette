@@ -47,23 +47,23 @@ namespace Marionette.Runtime {
 
     public override Value Evaluate(Environment env){
       if (list.IsEmpty()) {
-        throw new Exception("Empty invocation.");
+        throw new RuntimeException("Empty invocation.", Loc);
       }
 
       var fun = list[0].Evaluate(env); // TODO: 
       if (fun is Closure closure) {
         list.RemoveAt(0);
-        return closure.Evaluate(list.Map(x => x.Evaluate(env)).ToArray());
+        return closure.Evaluate(list.Map(x => x.Evaluate(env)).ToArray(), Loc);
       }
       else {
-        throw new Exception(string.Format("{0} is not a function.", fun.Show()));
+        throw new RuntimeException(string.Format("{0} is not a function.", fun.Show()), Loc);
       }
     }
   }
 
   public class EvalSymbol: Symbol<Value, Environment> {
     public override Value Evaluate(Environment env){
-      return env.GetOrElse(name, n => throw new Exception(string.Format("name not found: {0}", n)));
+      return env.GetOrElse(name, n => throw new RuntimeException(string.Format("name not found: {0}", n), Loc));
     }
 
     public EvalSymbol(string name) : base(name) {}

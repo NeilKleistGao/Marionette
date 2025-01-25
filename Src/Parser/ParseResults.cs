@@ -8,7 +8,7 @@ namespace Marionette.Parser {
     public TRes Evaluate(TEnv env);
   }
 
-  public abstract class ResultList<TRes, TEnv>: IEvaluatable<TRes, TEnv> {
+  public abstract class ResultList<TRes, TEnv>: LocatableData, IEvaluatable<TRes, TEnv> {
     protected List<IEvaluatable<TRes, TEnv>> list = new List<IEvaluatable<TRes, TEnv>>();
 
     public void Append(IEvaluatable<TRes, TEnv> res) {
@@ -18,7 +18,7 @@ namespace Marionette.Parser {
     public abstract TRes Evaluate(TEnv env);
   }
 
-  public abstract class Literal<TRes, TEnv>: IEvaluatable<TRes, TEnv> {
+  public abstract class Literal<TRes, TEnv>: LocatableData, IEvaluatable<TRes, TEnv> {
     public abstract TRes Evaluate(TEnv env);
   }
 
@@ -38,7 +38,7 @@ namespace Marionette.Parser {
     public string? Value { get; set; }
   }
 
-  public abstract class Symbol<TRes, TEnv>: IEvaluatable<TRes, TEnv> {
+  public abstract class Symbol<TRes, TEnv>: LocatableData, IEvaluatable<TRes, TEnv> {
     protected string name;
 
     public abstract TRes Evaluate(TEnv env);
@@ -48,13 +48,15 @@ namespace Marionette.Parser {
     }
   }
 
-  public abstract class EOF<TRes, TEnv>: IEvaluatable<TRes, TEnv> {
+  public abstract class EOF<TRes, TEnv>: LocatableData, IEvaluatable<TRes, TEnv> {
     public abstract TRes Evaluate(TEnv env);
   }
 
-  public class ParseError<TRes, TEnv>: IEvaluatable<TRes, TEnv> {
+  public class ParseError<TRes, TEnv>: LocatableData, IEvaluatable<TRes, TEnv> {
     private string message;
     private Location location;
+
+    public override Location? Loc { get => location; set => location = value ?? Location.Empty(); }
 
     public ParseError(string message, Location location) {
       this.message = message;
@@ -62,11 +64,11 @@ namespace Marionette.Parser {
     }
 
     public TRes Evaluate(TEnv env) {
-      throw new Exception("Parse error: " + message); // TODO: pp
+      throw new Exception("Parse error: " + message);
     }
 
     public Diagnosis ToDiagnosis() {
-      return new Diagnosis(ErrorType.ParseError, this.message, this.location);
+      return new Diagnosis(ErrorType.ParseError, message, location);
     }
   }
 } // namespace Marionette.Parser

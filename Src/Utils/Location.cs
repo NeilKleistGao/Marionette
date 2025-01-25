@@ -13,5 +13,11 @@ namespace Marionette.Utils {
     public static bool operator &(Location loc, Position p) =>
       (p.row > loc.start.row || (p.row == loc.start.row && p.col >= loc.start.col)) &&
       (p.row < loc.end.row || (p.row == loc.end.row && p.col <= loc.end.col));
+
+    public static Location Empty() => new Location(new Position(0, 0), new Position(0, 0));
+  }
+
+  public abstract class LocatableData {
+    public virtual Location? Loc { get; set; }
   }
 } // namespace Marionette.Utils

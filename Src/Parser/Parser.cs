@@ -95,6 +95,7 @@ namespace Marionette.Parser {
 
         if (rest.StartsWith(')')) {
           Consume(1);
+          list.Loc = new Location(startPos, position);
           return list;
         }
         else {
@@ -109,7 +110,9 @@ namespace Marionette.Parser {
         string text = rest.TakeWhile(c => c.IsDigitComponent());
         Consume(text.Length);
         try {
-          return allocateLiteral(text);
+          var res = allocateLiteral(text);
+          res.Loc = new Location(startPos, position);
+          return res;
         }
         catch (Exception) {
           return new ParseError<TRes, TEnv>(string.Format("{0} is not a valid number literal.", text), new Location(startPos, position));
@@ -117,11 +120,15 @@ namespace Marionette.Parser {
       }
       else if (rest.StartsWith("#t")) {
         Consume(2);
-        return allocateLiteral("#t");
+        var res = allocateLiteral("#t");
+        res.Loc = new Location(startPos, position);
+        return res;
       }
       else if (rest.StartsWith("#f")) {
         Consume(2);
-        return allocateLiteral("#f");
+        var res = allocateLiteral("#f");
+        res.Loc = new Location(startPos, position);
+        return res;;
       }
       else if (rest.StartsWith('"')) {
         Consume(1);
@@ -131,12 +138,16 @@ namespace Marionette.Parser {
           return new ParseError<TRes, TEnv>("Unfinished string.", new Location(startPos, position));
         }
         Consume(1);
-        return allocateLiteral(string.Format("\"{0}\"", s));
+        var res = allocateLiteral(string.Format("\"{0}\"", s));
+        res.Loc = new Location(startPos, position);
+        return res;
       }
       else {
         string symbol = rest.TakeWhile(c => !c.IsDelimiter());
         Consume(symbol.Length);
-        return allocateSymbol(symbol);
+        var res = allocateSymbol(symbol);
+        res.Loc = new Location(startPos, position + (-1));
+        return res;
       }
     }
 

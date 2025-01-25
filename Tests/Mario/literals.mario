@@ -89,7 +89,7 @@
 
 "abc"
 ;;|| --- Result --- ||
-;;|| Res: abc
+;;|| Res: "abc"
 
 
 :e

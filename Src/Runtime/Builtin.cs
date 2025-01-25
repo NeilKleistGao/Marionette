@@ -1,4 +1,5 @@
 using Marionette.Parser;
+using Marionette.Utils;
 
 namespace Marionette.Runtime {
   public class BinaryOperator : IEvaluatable<Value, Environment> {
@@ -21,7 +22,7 @@ namespace Marionette.Runtime {
         return new LiteralValue<string>(s1.Value + s2.Value);
       }
 
-      throw new Exception(string.Format("cannot add {0} and {1}.", lhs.Show(), rhs.Show()));
+      throw new RuntimeException(string.Format("cannot add {0} and {1}.", lhs.Show(), rhs.Show()));
     }
 
     private Value Sub(Value lhs, Value rhs) {
@@ -38,7 +39,7 @@ namespace Marionette.Runtime {
         return new LiteralValue<double>(d3.Value - d4.Value);
       }
 
-      throw new Exception(string.Format("cannot subtract {1} from {0}.", lhs.Show(), rhs.Show()));
+      throw new RuntimeException(string.Format("cannot subtract {1} from {0}.", lhs.Show(), rhs.Show()));
     }
 
     private Value Mult(Value lhs, Value rhs) {
@@ -55,7 +56,7 @@ namespace Marionette.Runtime {
         return new LiteralValue<double>(d3.Value * d4.Value);
       }
 
-      throw new Exception(string.Format("cannot multiply {0} by {1}.", lhs.Show(), rhs.Show()));
+      throw new RuntimeException(string.Format("cannot multiply {0} by {1}.", lhs.Show(), rhs.Show()));
     }
 
     private Value Div(Value lhs, Value rhs) {
@@ -78,7 +79,7 @@ namespace Marionette.Runtime {
         return new LiteralValue<double>(d3.Value / d4.Value);
       }
 
-      throw new Exception(string.Format("cannot divide {0} by {1}.", lhs.Show(), rhs.Show()));
+      throw new RuntimeException(string.Format("cannot divide {0} by {1}.", lhs.Show(), rhs.Show()));
     }
 
     public Value Evaluate(Environment env) {

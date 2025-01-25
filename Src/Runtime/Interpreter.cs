@@ -109,7 +109,12 @@ namespace Marionette.Runtime {
           errors.Add(err.ToDiagnosis());
         }
         else {
-          result = node.Evaluate(env);
+          try {
+            result = node.Evaluate(env);
+          }
+          catch (RuntimeException ex) {
+            errors.Add(new Diagnosis(ErrorType.RuntimeError, ex.Message, ex.Loc));
+          }
         }
       }
 

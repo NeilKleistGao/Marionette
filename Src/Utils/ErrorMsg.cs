@@ -1,3 +1,5 @@
+using System;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace Marionette.Utils {
@@ -31,5 +33,22 @@ namespace Marionette.Utils {
       var head = (type == ErrorType.ParseError) ? "[Parse Error]" : "[Runtime Error]";
       return string.Format("{0}: {1}\n{2}", head, message, BuildErrorLocation(source, prefix, location, globalLine));
     }
+  }
+
+  [Serializable]
+  public class RuntimeException : Exception {
+    private Location location = Location.Empty();
+    
+    public RuntimeException(string msg, Location? location) : base(msg) {
+      this.location = location ?? Location.Empty();
+    }
+
+    public RuntimeException(string msg) : base(msg) {}
+
+    public RuntimeException() : base("") {}
+
+    public RuntimeException(string msg, Exception innerException) : base(msg, innerException) {}
+
+    public Location Loc { get => location; }
   }
 } // namespace Marionette.Utils
