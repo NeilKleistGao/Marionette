@@ -162,3 +162,37 @@
 ;;|| [Runtime Error]: cannot divide 42 by False.
 ;;||  160 | (/ 42 #f)
 ;;||        ^^^^^^^^^
+
+
+:fixme wrong error message
+()
+;;|| --- Result --- ||
+;;|| [Runtime Error]: name not found: 
+;;||  168 | ()
+;;||          
+
+
+(+ 1
+ 1)
+;;|| --- Result --- ||
+;;|| Res: 2
+
+
+:e
+(* 3.14
+  (+ 2))
+;;|| --- Result --- ||
+;;|| [Runtime Error]: Expect 2 arguments, got 1
+;;||  183 |   (+ 2))
+;;||           ^^^^^
+
+
+:e
+(* 3.14 (+
+  2))
+;;|| --- Result --- ||
+;;|| [Runtime Error]: Expect 2 arguments, got 1
+;;||  191 | (* 3.14 (+
+;;||                ^^
+;;||  192 |   2))
+;;||        ^^^^^

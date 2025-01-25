@@ -16,6 +16,24 @@ namespace Marionette.Parser {
     }
 
     public abstract TRes Evaluate(TEnv env);
+
+    public List<Symbol<TRes, TEnv>> AsSymbolList() {
+      var res = new List<Symbol<TRes, TEnv>>();
+      foreach (var item in list) {
+        if (item is Symbol<TRes, TEnv> s) {
+          res.Add(s);
+        }
+        else {
+          var loc = Location.Empty(); // TODO: refactor
+          if (item is LocatableData d) {
+            loc = d.Loc;
+          }
+          throw new RuntimeException("Expect symbol here.", loc);
+        }
+      }
+
+      return res;
+    }
   }
 
   public abstract class Literal<TRes, TEnv>: LocatableData, IEvaluatable<TRes, TEnv> {
@@ -46,6 +64,10 @@ namespace Marionette.Parser {
     public Symbol(string name) {
       this.name = name;
     }
+
+    public bool IsDefine { get => name == "define"; }
+
+    public string Name { get => name; }
   }
 
   public abstract class EOF<TRes, TEnv>: LocatableData, IEvaluatable<TRes, TEnv> {

@@ -95,7 +95,7 @@ namespace Marionette.Parser {
 
         if (rest.StartsWith(')')) {
           Consume(1);
-          list.Loc = new Location(startPos, position);
+          list.Loc = new Location(startPos, position + (-1));
           return list;
         }
         else {

@@ -50,13 +50,48 @@ namespace Marionette.Runtime {
         throw new RuntimeException("Empty invocation.", Loc);
       }
 
-      var fun = list[0].Evaluate(env); // TODO: 
-      if (fun is Closure closure) {
-        list.RemoveAt(0);
-        return closure.Evaluate(list.Map(x => x.Evaluate(env)).ToArray(), Loc);
+      if (list[0] is EvalSymbol sym && sym.IsDefine) {
+        if (list.Count != 3) {
+          throw new RuntimeException("Expect `(define name value).`", Loc);
+        }
+        if (list[1] is EvalSymbol name) {
+          var value = list[2].Evaluate(env);
+          env.Add(name.Name, value);
+          return new UnitValue();
+        }
+        else if (list[1] is EvalList lst) {
+          var symbols = lst.AsSymbolList();
+          if (symbols.IsEmpty()) {
+            var loc = Location.Empty();
+            if (list[1] is LocatableData ld) {
+              loc = ld.Loc;
+            }
+            throw new RuntimeException("Empty function declaration.", loc);
+          }
+
+          var fname = symbols[0].Name;
+          symbols.RemoveAt(0);
+          var bindings = symbols.Map(sym => sym.Name);
+          env.Add(fname, new Closure(bindings.ToArray(), env, list[2]));
+          return new UnitValue();
+        }
+        else {
+          var loc = Location.Empty();
+          if (list[1] is LocatableData ld) {
+            loc = ld.Loc;
+          }
+          throw new RuntimeException("Expect symbol or parameter list.", loc);
+        }
       }
       else {
-        throw new RuntimeException(string.Format("{0} is not a function.", fun.Show()), Loc);
+        var fun = list[0].Evaluate(env);
+        if (fun is Closure closure) {
+          list.RemoveAt(0);
+          return closure.Evaluate(list.Map(x => x.Evaluate(env)).ToArray(), Loc);
+        }
+        else {
+          throw new RuntimeException(string.Format("{0} is not a function.", fun.Show()), Loc);
+        }
       }
     }
   }

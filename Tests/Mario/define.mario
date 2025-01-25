@@ -1,0 +1,34 @@
+(define x 42)
+
+x
+;;|| --- Result --- ||
+;;|| Res: 42
+
+
+(define two (+ 1 1))
+
+
+two
+;;|| --- Result --- ||
+;;|| Res: 2
+
+
+:e
+(define bad (0))
+;;|| --- Result --- ||
+;;|| [Runtime Error]: 0 is not a function.
+;;||  17 | (define bad (0))
+;;||                   ^^^ 
+
+
+(define (id x) x)
+
+
+(id 42)
+;;|| --- Result --- ||
+;;|| Res: 42
+
+
+(id id)
+;;|| --- Result --- ||
+;;|| Res: [Function]
