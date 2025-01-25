@@ -9,6 +9,9 @@ namespace Marionette.Runtime {
 
     private Environment() {
       env.Add("+", new Closure(["lhs", "rhs"], globalEnvironment, new BinaryOperator("+")));
+      env.Add("-", new Closure(["lhs", "rhs"], globalEnvironment, new BinaryOperator("-")));
+      env.Add("*", new Closure(["lhs", "rhs"], globalEnvironment, new BinaryOperator("*")));
+      env.Add("/", new Closure(["lhs", "rhs"], globalEnvironment, new BinaryOperator("/")));
     }
 
     public Environment(Environment parent) {
