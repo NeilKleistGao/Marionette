@@ -84,6 +84,54 @@ namespace Marionette.Runtime {
           throw new RuntimeException("Expect symbol or parameter list.", loc);
         }
       }
+      else if (list[0] is EvalSymbol symi && symi.IsIf) {
+        if (list.Count != 4) {
+          throw new RuntimeException("Expect `(if condition res alt).`", Loc);
+        }
+        
+        var cond = list[1].Evaluate(env);
+        if (cond is LiteralValue<bool> boolCond) {
+          if (boolCond.Value) {
+            return list[2].Evaluate(env);
+          }
+          else {
+            return list[3].Evaluate(env);
+          }
+        }
+        else {
+          throw new RuntimeException("Expect boolean condition.`", Loc);
+        }
+      }
+      else if (list[0] is EvalSymbol symc && symc.IsCond) {
+        if (list.Count < 2) {
+          throw new RuntimeException("Expect `(cond (condition res)*).`", Loc);
+        }
+
+        for (int i = 1; i < list.Count; ++i) {
+          if (list[i] is EvalList checkList && checkList.list.Count == 2) {
+            if (checkList.list[0] is EvalSymbol syme && syme.IsElse) {
+              return checkList.list[1].Evaluate(env);
+            }
+            else {
+              var cond = checkList.list[0].Evaluate(env);
+              if (cond is LiteralValue<bool> boolCond) {
+                if (boolCond.Value) {
+                  return checkList.list[1].Evaluate(env);
+                }
+              }
+              else {
+                throw new RuntimeException("Expect boolean condition.`", checkList.Loc);
+              }
+            }
+          }
+          else if (list[i] is LocatableData d) {
+            throw new RuntimeException("Expect `(condition res).`", d.Loc);
+          }
+          // Impossible
+        }
+
+        throw new RuntimeException("Unexhausted cond expression.`", Loc);
+      }
       else {
         var fun = list[0].Evaluate(env);
         if (fun is Closure closure) {

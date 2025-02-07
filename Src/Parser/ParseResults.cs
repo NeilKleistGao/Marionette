@@ -87,6 +87,12 @@ namespace Marionette.Parser {
 
     public bool IsDefine { get => name == "define"; }
 
+    public bool IsIf { get => name == "if"; }
+
+    public bool IsCond { get => name == "cond"; }
+
+    public bool IsElse { get => name == "else"; }
+
     public string Name { get => name; }
 
     public override string ToString(){

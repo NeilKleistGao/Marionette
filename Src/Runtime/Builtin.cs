@@ -82,6 +82,33 @@ namespace Marionette.Runtime {
       throw new RuntimeException(string.Format("cannot divide {0} by {1}.", lhs.Show(), rhs.Show()));
     }
 
+    private Value Compare(Value lhs, Value rhs, Func<int, bool> pred) {
+      int? res = null;
+      if (lhs is LiteralValue<int> i1 && rhs is LiteralValue<int> i2) {
+        res = i1.Value.CompareTo(i2.Value);
+      }
+      else if (lhs is LiteralValue<int> i && rhs is LiteralValue<double> d) {
+        res = i.Value.CompareTo(d.Value);
+      }
+      else if (lhs is LiteralValue<double> d2 && rhs is LiteralValue<int> i3) {
+        res = d2.Value.CompareTo(i3.Value);
+      }
+      else if (lhs is LiteralValue<double> d3 && rhs is LiteralValue<double> d4) {
+        res = d3.Value.CompareTo(d4.Value);
+      }
+      else if (lhs is LiteralValue<string> s1 && rhs is LiteralValue<string> s2) {
+        res = s1.Value.CompareTo(s2.Value);
+      }
+      else if (lhs is LiteralValue<bool> b1 && rhs is LiteralValue<bool> b2) {
+        res = b1.Value.CompareTo(b2.Value);
+      }
+
+      if (res is int r) {
+        return pred(r) ? new LiteralValue<bool>(true) : new LiteralValue<bool>(false);
+      }
+      throw new RuntimeException(string.Format("cannot compare {1} with {0}.", lhs.Show(), rhs.Show()));
+    }
+
     public Value Evaluate(Environment env) {
       var lhs = new EvalSymbol("lhs").Evaluate(env);
       var rhs = new EvalSymbol("rhs").Evaluate(env);
@@ -94,6 +121,16 @@ namespace Marionette.Runtime {
           return Mult(lhs, rhs);
         case "/":
           return Div(lhs, rhs);
+        case ">":
+          return Compare(lhs, rhs, (x) => x > 0); 
+        case ">=":
+          return Compare(lhs, rhs, (x) => x >= 0);
+        case "<":
+          return Compare(lhs, rhs, (x) => x < 0); 
+        case "<=":
+          return Compare(lhs, rhs, (x) => x <= 0);
+        case "=":
+          return Compare(lhs, rhs, (x) => x == 0);
         // TODO: other
       }
 

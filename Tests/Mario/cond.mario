@@ -1,0 +1,102 @@
+(> 1 2)
+;;|| --- Result --- ||
+;;|| Res: False
+
+
+(= "abc" "abc")
+;;|| --- Result --- ||
+;;|| Res: True
+
+
+(if #t #f #t)
+;;|| --- Result --- ||
+;;|| Res: False
+
+
+:e
+(if 1 2 3 4 5)
+;;|| --- Result --- ||
+;;|| [Runtime Error]: Expect `(if condition res alt).`
+;;||  17 | (if 1 2 3 4 5)
+;;||       ^^^^^^^^^^^^^^
+
+
+:e
+(if 1 0 1)
+;;|| --- Result --- ||
+;;|| [Runtime Error]: Expect boolean condition.`
+;;||  25 | (if 1 0 1)
+;;||       ^^^^^^^^^^
+
+
+(define (prec x)
+  (if (= x 0) 0 (- x 1)))
+
+
+(prec 0)
+;;|| --- Result --- ||
+;;|| Res: 0
+
+
+(prec 43)
+;;|| --- Result --- ||
+;;|| Res: 42
+
+
+(define (abs x)
+  (cond
+    ((> x 0) x)
+    ((< x 0) (- 0 x))
+    ((= x 0) 0)))
+
+
+(abs 0)
+;;|| --- Result --- ||
+;;|| Res: 0
+
+
+(abs 1)
+;;|| --- Result --- ||
+;;|| Res: 1
+
+
+(abs -2)
+;;|| --- Result --- ||
+;;|| Res: 2
+
+
+:e
+(cond)
+;;|| --- Result --- ||
+;;|| [Runtime Error]: Expect `(cond (condition res)*).`
+;;||  69 | (cond)
+;;||       ^^^^^^
+
+
+:e
+(cond (1 5))
+;;|| --- Result --- ||
+;;|| [Runtime Error]: Expect boolean condition.`
+;;||  77 | (cond (1 5))
+;;||             ^^^^^ 
+
+
+(define (abs2 x)
+  (cond
+    ((< x 0) (- 0 x))
+    (else x)))
+
+
+(abs2 0)
+;;|| --- Result --- ||
+;;|| Res: 0
+
+
+(abs2 1)
+;;|| --- Result --- ||
+;;|| Res: 1
+
+
+(abs2 -2)
+;;|| --- Result --- ||
+;;|| Res: 2
