@@ -42,10 +42,33 @@ two
 ;;|| Res: 441
 
 
-(define (sum-of-squares x1 y1)
-  (+ (square x1) (square y1)))
+(define (sum-of-squares x y)
+  (+ (square x) (square y)))
 
 
 (sum-of-squares 3 4)
 ;;|| --- Result --- ||
 ;;|| Res: 25
+
+
+(define (bad-square x) (* x y))
+
+
+:e
+(bad-square 42)
+;;|| --- Result --- ||
+;;|| [Runtime Error]: name not found: y
+;;||  58 | (bad-square 42)
+;;||       ^^^^^^^^^^^^^^^
+
+
+(define (bad-sum-of-squares x y)
+  (+ (bad-square x) (bad-square y)))
+
+
+:e no unexpected capturing
+(bad-sum-of-squares 3 4)
+;;|| --- Result --- ||
+;;|| [Runtime Error]: name not found: y
+;;||  70 | (bad-sum-of-squares 3 4)
+;;||       ^^^^^^^^^^^^^^^^^^^^^^^^
