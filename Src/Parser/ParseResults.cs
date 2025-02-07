@@ -34,6 +34,10 @@ namespace Marionette.Parser {
 
       return res;
     }
+
+    public override string ToString(){
+      return string.Format("({0}, ...)", list[0].ToString()); // TODO
+    }
   }
 
   public abstract class Literal<TRes, TEnv>: LocatableData, IEvaluatable<TRes, TEnv> {
@@ -42,18 +46,34 @@ namespace Marionette.Parser {
 
   public abstract class IntLiteral<TRes, TEnv> : Literal<TRes, TEnv> {
     public int Value { get; set; }
+
+    public override string ToString(){
+      return Value.ToString();
+    }
   }
 
   public abstract class NumberLiteral<TRes, TEnv> : Literal<TRes, TEnv> {
     public double Value { get; set; }
+
+    public override string ToString(){
+      return Value.ToString();
+    }
   }
 
   public abstract class BoolLiteral<TRes, TEnv> : Literal<TRes, TEnv> {
     public bool Value { get; set; }
+
+    public override string ToString(){
+      return Value.ToString();
+    }
   }
 
   public abstract class StringLiteral<TRes, TEnv> : Literal<TRes, TEnv> {
     public string? Value { get; set; }
+
+    public override string ToString(){
+      return string.Format("\"{0}\"", Value?.ToString()??"");
+    }
   }
 
   public abstract class Symbol<TRes, TEnv>: LocatableData, IEvaluatable<TRes, TEnv> {
@@ -68,10 +88,18 @@ namespace Marionette.Parser {
     public bool IsDefine { get => name == "define"; }
 
     public string Name { get => name; }
+
+    public override string ToString(){
+      return name;
+    }
   }
 
   public abstract class EOF<TRes, TEnv>: LocatableData, IEvaluatable<TRes, TEnv> {
     public abstract TRes Evaluate(TEnv env);
+
+    public override string ToString(){
+      return "<EOF>";
+    }
   }
 
   public class ParseError<TRes, TEnv>: LocatableData, IEvaluatable<TRes, TEnv> {
@@ -91,6 +119,10 @@ namespace Marionette.Parser {
 
     public Diagnosis ToDiagnosis() {
       return new Diagnosis(ErrorType.ParseError, message, location);
+    }
+
+    public override string ToString(){
+      return "<ERROR>";
     }
   }
 } // namespace Marionette.Parser

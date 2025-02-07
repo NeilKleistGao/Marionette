@@ -56,6 +56,7 @@ namespace Marionette.Runtime {
       }
 
       try {
+        Debug.LogFormat("Evalueate closure body {0}", body.ToString());
         return body.Evaluate(nestCxt);
       }
       catch (RuntimeException ex) {
@@ -96,7 +97,7 @@ namespace Marionette.Runtime {
       }
     }
 
-    public List<Utils.Diagnosis> Diagnosis {
+    public List<Diagnosis> Diagnosis {
       get {
         if (succeeded) { throw new Exception("No Errors found."); }
         else { return diagnosis; }

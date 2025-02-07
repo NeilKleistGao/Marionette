@@ -32,3 +32,20 @@ two
 (id id)
 ;;|| --- Result --- ||
 ;;|| Res: [Function]
+
+
+(define (square x) (* x x))
+
+
+(square 21)
+;;|| --- Result --- ||
+;;|| Res: 441
+
+
+(define (sum-of-squares x1 y1)
+  (+ (square x1) (square y1)))
+
+
+(sum-of-squares 3 4)
+;;|| --- Result --- ||
+;;|| Res: 25

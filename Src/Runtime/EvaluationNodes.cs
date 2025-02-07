@@ -50,6 +50,7 @@ namespace Marionette.Runtime {
         throw new RuntimeException("Empty invocation.", Loc);
       }
 
+      Debug.LogFormat("Evalueate {0}", ToString());
       if (list[0] is EvalSymbol sym && sym.IsDefine) {
         if (list.Count != 3) {
           throw new RuntimeException("Expect `(define name value).`", Loc);
@@ -86,8 +87,11 @@ namespace Marionette.Runtime {
       else {
         var fun = list[0].Evaluate(env);
         if (fun is Closure closure) {
-          list.RemoveAt(0);
-          return closure.Evaluate(list.Map(x => x.Evaluate(env)).ToArray(), Loc);
+          var values = new List<Value>();
+          for (int i = 1; i < list.Count; ++i) {
+            values.Add(list[i].Evaluate(env));
+          }
+          return closure.Evaluate(values.ToArray(), Loc);
         }
         else {
           throw new RuntimeException(string.Format("{0} is not a function.", fun.Show()), Loc);

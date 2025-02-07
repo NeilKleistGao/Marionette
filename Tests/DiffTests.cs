@@ -15,6 +15,9 @@ struct TestMode {
   public bool Todo {
     get; set;
   }
+  public bool Debug {
+    get; set;
+  }
 
   // TODO: more mode
 
@@ -22,6 +25,7 @@ struct TestMode {
     ExpectError = false;
     Fixme = false;
     Todo = false;
+    Debug = false;
   }
 }
 
@@ -77,6 +81,7 @@ public class DiffTests: IClassFixture<GitDiffData> {
 
   private readonly static string testOutputPrefix = ";;|| ";
   private readonly static string testOutputIndicator = ";;|| --- Result --- ||";
+  private readonly static string debugOutputIndicator = ";;|| --- Debug --- ||";
 
   public readonly static string testPath = "../../../Mario";
   public readonly static string testExtension = ".mario";
@@ -98,8 +103,14 @@ public class DiffTests: IClassFixture<GitDiffData> {
     string[] lines = data.Split("\n");
     bool succeeded = true;
     var outputBuilder = new StringBuilder();
+    Marionette.Utils.Debug.println = (s) => {
+      var lines = s.Split("\n");
+      foreach (var line in lines) {
+        outputBuilder.AppendLine(testOutputPrefix + line.Trim());
+      }
+    };
     var interpreter = new Interpreter();
-    DateTime begin = DateTime.Now;    
+    DateTime begin = DateTime.Now;
 
     for (int i = 0; i < lines.Length; ++i) {
       if (lines[i].IsEmpty()) {
@@ -117,7 +128,7 @@ public class DiffTests: IClassFixture<GitDiffData> {
             ++globalLine;
             continue;
           }
-          if (line.StartsWith(testOutputIndicator)) {
+          if (line.StartsWith(testOutputIndicator) || line.StartsWith(debugOutputIndicator)) {
             break; // drop the test outputs
           }
           outputBuilder.AppendLine(line);
@@ -125,6 +136,10 @@ public class DiffTests: IClassFixture<GitDiffData> {
         }
 
         i += block.Count - 1;
+        Marionette.Utils.Debug.Enabled = testMode.Debug;
+        if (testMode.Debug) {
+          outputBuilder.AppendLine(debugOutputIndicator);
+        }
 
         var code = codeBuilder.ToString().Trim();
         var result = interpreter.Interpret(code);
@@ -172,6 +187,8 @@ public class DiffTests: IClassFixture<GitDiffData> {
     Console.ForegroundColor = color;
     Console.WriteLine("> Case " + caseName + ": " + time.ToString() + " ms.");
     Console.ForegroundColor = backup;
+    
+    Marionette.Utils.Debug.println = Marionette.Utils.Debug.DefaultPrint;
 
     var output = outputBuilder.ToString();
     if (data != output) {
@@ -193,6 +210,9 @@ public class DiffTests: IClassFixture<GitDiffData> {
     }
     else if (line.StartsWith(":fixme")) {
       flag = mode.Fixme = true;
+    }
+    else if (line.StartsWith(":d")) {
+      flag = mode.Debug = true;
     }
 
     return flag;
