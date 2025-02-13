@@ -1,0 +1,47 @@
+(define (factorial n)
+  (if (= n 1)
+    1
+    (* n (factorial (- n 1)))))
+
+
+(factorial 1)
+;;|| --- Result --- ||
+;;|| Res: 1
+
+(factorial 5)
+;;|| --- Result --- ||
+;;|| Res: 120
+
+
+(define (factorial' n)
+  (define (fact-iter r i n)
+    (if (> i n)
+      r
+      (fact-iter (* r i) (+ 1 i) n)))
+  (fact-iter 1 1 n))
+
+
+(factorial' 1)
+;;|| --- Result --- ||
+;;|| Res: 1
+
+(factorial' 5)
+;;|| --- Result --- ||
+;;|| Res: 120
+
+
+(define (factorial'' n)
+  (define (fact-iter r i)
+    (if (> i n)
+      r
+      (fact-iter (* r i) (+ 1 i))))
+  (fact-iter 1 1))
+
+
+(factorial'' 1)
+;;|| --- Result --- ||
+;;|| Res: 1
+
+(factorial'' 5)
+;;|| --- Result --- ||
+;;|| Res: 120

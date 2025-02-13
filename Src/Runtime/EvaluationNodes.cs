@@ -42,6 +42,25 @@ namespace Marionette.Runtime {
     } 
   }
 
+  class Block: IEvaluatable<Value, Environment> {
+    private List<IEvaluatable<Value, Environment>> statements = new List<IEvaluatable<Value,Environment>>();
+    private IEvaluatable<Value, Environment> result;
+
+    public Block(List<IEvaluatable<Value, Environment>> statements, IEvaluatable<Value, Environment> result) {
+      this.statements = statements;
+      this.result = result;
+    }
+
+    public Value Evaluate(Environment env){
+      var nest = new Environment(env);
+      foreach (var s in statements) {
+        s.Evaluate(nest);
+      }
+
+      return result.Evaluate(nest);
+    }
+  }
+
   public class EvalList: ResultList<Value, Environment> {
     public EvalList() {}
 
@@ -64,15 +83,15 @@ namespace Marionette.Runtime {
           throw new RuntimeException("Empty function declaration.", loc);
         }
 
-        var nest = new Environment(env);
+        var statements = new List<IEvaluatable<Value, Environment>>();
         for (int i = 2; i < list.Count - 1; ++i) {
-          list[i].Evaluate(nest);
+          statements.Add(list[i]);
         }
 
         var fname = symbols[0].Name;
         symbols.RemoveAt(0);
         var bindings = symbols.Map(sym => sym.Name);
-        env.Add(fname, new Closure(bindings.ToArray(), nest, list[list.Count - 1]));
+        env.Add(fname, new Closure(bindings.ToArray(), env, new Block(statements, list[list.Count - 1])));
         return new UnitValue();
       }
       else {
@@ -134,7 +153,7 @@ namespace Marionette.Runtime {
       throw new RuntimeException("Unexhausted cond expression.`", Loc);
     }
 
-    public override Value Evaluate(Environment env){
+    public override Value Evaluate(Environment env) {
       if (list.IsEmpty()) {
         throw new RuntimeException("Empty invocation.", Loc);
       }
