@@ -45,3 +45,34 @@
 (factorial'' 5)
 ;;|| --- Result --- ||
 ;;|| Res: 120
+
+
+(define (fib n)
+  (cond ((= n 0) 0)
+        ((= n 1) 1)
+        (else (+ (fib (- n 1)) (fib (- n 2))))))
+
+(fib 5)
+;;|| --- Result --- ||
+;;|| Res: 5
+
+(fib 12)
+;;|| --- Result --- ||
+;;|| Res: 144
+
+
+(define (fib' n)
+  (define (fib-iter x y i)
+    (if (= i n)
+      x
+      (fib-iter y (+ x y) (+ i 1))))
+  (fib-iter 0 1 0))
+
+
+(fib' 5)
+;;|| --- Result --- ||
+;;|| Res: 5
+
+(fib' 12)
+;;|| --- Result --- ||
+;;|| Res: 144

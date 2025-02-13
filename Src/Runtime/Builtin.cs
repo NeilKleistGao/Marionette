@@ -3,7 +3,9 @@ using Marionette.Utils;
 
 namespace Marionette.Runtime {
   public class BinaryOperator : IEvaluatable<Value, Environment> {
-    private string name;
+    protected string name;
+    protected const string LHS_NAME = "lhs";
+    protected const string RHS_NAME = "rhs";
 
     private Value Add(Value lhs, Value rhs) {
       if (lhs is LiteralValue<int> i1 && rhs is LiteralValue<int> i2) {
@@ -109,9 +111,9 @@ namespace Marionette.Runtime {
       throw new RuntimeException(string.Format("cannot compare {1} with {0}.", lhs.Show(), rhs.Show()));
     }
 
-    public Value Evaluate(Environment env) {
-      var lhs = new EvalSymbol("lhs").Evaluate(env);
-      var rhs = new EvalSymbol("rhs").Evaluate(env);
+    public virtual Value Evaluate(Environment env) {
+      var lhs = new EvalSymbol(LHS_NAME).Evaluate(env);
+      var rhs = new EvalSymbol(RHS_NAME).Evaluate(env);
       switch (name) {
         case "+":
           return Add(lhs, rhs);
@@ -134,11 +136,86 @@ namespace Marionette.Runtime {
         // TODO: other
       }
 
-      throw new Exception(string.Format("{0} cannot be used as a builtin symbol here.", name));
+      throw new RuntimeException(string.Format("{0} cannot be used as a builtin symbol here.", name));
     }
 
-    public BinaryOperator(string name) {
+    protected BinaryOperator(string name) {
       this.name = name;
+    }
+
+    public static void CreateOperator(Environment env, string name) {
+      env.Add(name, new Closure([LHS_NAME, RHS_NAME], env, new BinaryOperator(name)));
+    }
+  }
+
+  public class ShortCircuitOperator : BinaryOperator {
+    private ShortCircuitOperator(string name) : base(name) {}
+
+    public override Value Evaluate(Environment env) {
+      var lhs = new EvalSymbol(LHS_NAME).Evaluate(env);
+      var rhs = new EvalSymbol(RHS_NAME);
+      var getBool = (Value? v) => {
+        if (v is LiteralValue<bool> b) {
+          return b.Value;
+        }
+        else {
+          throw new RuntimeException(string.Format("{0} is not a boolean expression.", v?.Show()));
+        }
+      };
+      
+      switch (name) {
+        case "and":
+          return new LiteralValue<bool>(getBool(lhs) ? getBool(rhs.Evaluate(env)) : false);
+        case "or":
+          return new LiteralValue<bool>(getBool(lhs) ? true : getBool(rhs.Evaluate(env)));
+      }
+
+      throw new RuntimeException(string.Format("{0} cannot be used as a builtin symbol here.", name));
+    }
+
+    public static new void CreateOperator(Environment env, string name) {
+      env.Add(name, new Closure([LHS_NAME, RHS_NAME], env, new ShortCircuitOperator(name)));
+    }
+  }
+
+  public class UnaryOperator : IEvaluatable<Value, Environment> {
+    private string name;
+    private const string OPRAND_NAME = "value";
+
+    private UnaryOperator(string name) {
+      this.name = name;
+    }
+
+    public Value Evaluate(Environment env) {
+      var value = new EvalSymbol(OPRAND_NAME).Evaluate(env);
+      switch (name) {
+        case "neg":
+          if (value is LiteralValue<int> i) {
+            return new LiteralValue<int>(-i.Value);
+          }
+          else if (value is LiteralValue<float> f) {
+            return new LiteralValue<float>(-f.Value);
+          }
+          else {
+            throw new RuntimeException(string.Format("{0} is not a numeric expression.", value?.Show()));
+          }
+        case "not":
+          if (value is LiteralValue<bool> b) { // TODO: refactor
+            return new LiteralValue<bool>(!b.Value);
+          }
+          else {
+            throw new RuntimeException(string.Format("{0} is not a boolean expression.", value?.Show()));
+          }
+        case "display":
+          Console.WriteLine(value.ToString());
+          return new UnitValue();
+      }
+
+      throw new RuntimeException(string.Format("{0} cannot be used as a builtin symbol here.", name));
+    }
+
+    public static void CreateOperator(Environment env, string name) {
+      env.Add(name, new Closure([OPRAND_NAME], env, new UnaryOperator(name)));
     }
   }
 } // namespace Marionette.Runtime

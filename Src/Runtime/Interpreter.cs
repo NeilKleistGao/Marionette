@@ -8,15 +8,20 @@ namespace Marionette.Runtime {
     private Environment? parent = null;
 
     private Environment() {
-      env.Add("+", new Closure(["lhs", "rhs"], globalEnvironment, new BinaryOperator("+")));
-      env.Add("-", new Closure(["lhs", "rhs"], globalEnvironment, new BinaryOperator("-")));
-      env.Add("*", new Closure(["lhs", "rhs"], globalEnvironment, new BinaryOperator("*")));
-      env.Add("/", new Closure(["lhs", "rhs"], globalEnvironment, new BinaryOperator("/")));
-      env.Add(">", new Closure(["lhs", "rhs"], globalEnvironment, new BinaryOperator(">")));
-      env.Add(">=", new Closure(["lhs", "rhs"], globalEnvironment, new BinaryOperator(">=")));
-      env.Add("<", new Closure(["lhs", "rhs"], globalEnvironment, new BinaryOperator("<")));
-      env.Add("<=", new Closure(["lhs", "rhs"], globalEnvironment, new BinaryOperator("<=")));
-      env.Add("=", new Closure(["lhs", "rhs"], globalEnvironment, new BinaryOperator("=")));
+      BinaryOperator.CreateOperator(this, "+");
+      BinaryOperator.CreateOperator(this, "-");
+      BinaryOperator.CreateOperator(this, "*");
+      BinaryOperator.CreateOperator(this, "/");
+      BinaryOperator.CreateOperator(this, ">");
+      BinaryOperator.CreateOperator(this, ">=");
+      BinaryOperator.CreateOperator(this, "<");
+      BinaryOperator.CreateOperator(this, "<=");
+      BinaryOperator.CreateOperator(this, "=");
+      ShortCircuitOperator.CreateOperator(this, "and");
+      ShortCircuitOperator.CreateOperator(this, "or");
+      UnaryOperator.CreateOperator(this, "neg");
+      UnaryOperator.CreateOperator(this, "not");
+      UnaryOperator.CreateOperator(this, "display");
     }
 
     public Environment(Environment parent) {

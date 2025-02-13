@@ -1,0 +1,59 @@
+and
+;;|| --- Result --- ||
+;;|| Res: [Function]
+
+
+(and #t #f)
+;;|| --- Result --- ||
+;;|| Res: False
+
+
+(or #t #f)
+;;|| --- Result --- ||
+;;|| Res: True
+
+
+(not (or #f #f))
+;;|| --- Result --- ||
+;;|| Res: True
+
+
+(define (show-and-ret v)
+  (display v)
+  v)
+
+
+show-and-ret
+;;|| --- Result --- ||
+;;|| Res: [Function]
+
+
+(show-and-ret 114514)
+;;|| --- Result --- ||
+;;|| > 114514
+;;|| Res: 114514
+
+
+:fixme short circuit 
+(and #f (show-and-ret #f))
+;;|| --- Result --- ||
+;;|| > False
+;;|| Res: False
+
+
+(and #t (show-and-ret #f))
+;;|| --- Result --- ||
+;;|| > False
+;;|| Res: False
+
+
+(or #t (show-and-ret #f))
+;;|| --- Result --- ||
+;;|| > False
+;;|| Res: True
+
+
+(or #f (show-and-ret #f))
+;;|| --- Result --- ||
+;;|| > False
+;;|| Res: False

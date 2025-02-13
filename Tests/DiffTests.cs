@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text;
+using System.IO;
 using Marionette.Runtime;
 using Marionette.Utils;
 
@@ -142,7 +143,19 @@ public class DiffTests: IClassFixture<GitDiffData> {
         }
 
         var code = codeBuilder.ToString().Trim();
+        var outputWriter = new StringWriter();
+        Console.SetOut(outputWriter);
         var result = interpreter.Interpret(code);
+        Console.SetOut(new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true });
+        var displayOutput = outputWriter.ToString().Trim();
+        var writeOutput = () => {
+          if (!displayOutput.IsEmpty()) {
+            foreach (var line in displayOutput.Split("\n")) {
+              outputBuilder.AppendLine(testOutputPrefix + "> " + line);
+            }
+          }
+        };
+
         if (result.Succeeded) {
           if (testMode.ExpectError) {
             succeeded = false;
@@ -150,7 +163,11 @@ public class DiffTests: IClassFixture<GitDiffData> {
           var value = result.Value;
           if (value is not UnitValue) {
             outputBuilder.AppendLine(testOutputIndicator);
+            writeOutput();
             outputBuilder.AppendLine(testOutputPrefix + "Res: " + value.Show());
+          }
+          else if (value is UnitValue && !displayOutput.IsEmpty()) {
+            writeOutput();
           }
         }
         else {
@@ -158,6 +175,7 @@ public class DiffTests: IClassFixture<GitDiffData> {
             succeeded = false;
           }
           outputBuilder.AppendLine(testOutputIndicator);
+          writeOutput();
           foreach (var error in result.Diagnosis) {
             outputBuilder.AppendLine(testOutputPrefix + error.Show(code, testOutputPrefix, globalLine));
           }

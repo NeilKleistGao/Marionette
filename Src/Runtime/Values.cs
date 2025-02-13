@@ -10,11 +10,11 @@ namespace Marionette.Runtime {
     private T value;
 
     public LiteralValue(T v) {
-      this.value = v;
+      value = v;
     }
 
     public T Value {
-      get => this.value;
+      get => value;
     }
 
     public override string Show() {
@@ -25,6 +25,10 @@ namespace Marionette.Runtime {
         return value?.ToString() ?? "";
       }
     }
+    
+    public override string ToString() {
+      return value?.ToString() ?? "";
+    }
   }
 
   public class Closure : Value {
@@ -33,6 +37,10 @@ namespace Marionette.Runtime {
     private IEvaluatable<Value, Environment> body;
 
     public override string Show() {
+      return "[Function]";
+    }
+
+    public override string ToString() {
       return "[Function]";
     }
 
@@ -68,6 +76,10 @@ namespace Marionette.Runtime {
   public class UnitValue : Value {
     public override string Show() {
       return "";
+    }
+
+    public override string ToString() {
+      return "[Unit]";
     }
   }
 
