@@ -168,6 +168,9 @@ namespace Marionette.Runtime {
       else if (list[0] is EvalSymbol symc && symc.IsCond) {
         return EvaluateCond(env);
       }
+      if (list[0] is EvalSymbol syme && syme.IsElse) {
+        throw new RuntimeException("Unexpected else expression.", Loc);
+      }
       else {
         var fun = list[0].Evaluate(env);
         if (fun is LazyClosure lazyClosure) {

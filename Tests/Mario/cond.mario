@@ -100,3 +100,12 @@
 (abs2 -2)
 ;;|| --- Result --- ||
 ;;|| Res: 2
+
+
+
+:e
+(else 42)
+;;|| --- Result --- ||
+;;|| [Runtime Error]: Unexpected else expression.
+;;||  107 | (else 42)
+;;||        ^^^^^^^^^
