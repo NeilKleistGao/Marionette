@@ -1,0 +1,43 @@
+(define (average x y)
+  (/ (+ x y) 2))
+
+(define (abs x)
+  (if (< x 0) (- 0 x) x))
+
+(define (square x) (* x x))
+
+(define (sqrt x)
+  (define (improve guess x)
+    (average guess (/ x guess)))
+  (define (good-enough? guess x)
+    (< (abs (- (square guess) x)) 1e-3))
+  (define (sqrt-iter guess x)
+    (if (good-enough? guess x)
+      guess
+      (sqrt-iter (improve guess x) x)))
+  (sqrt-iter 1.0 x))
+
+
+(sqrt 1)
+;;|| --- Result --- ||
+;;|| Res: 1
+
+
+(sqrt 2)
+;;|| --- Result --- ||
+;;|| Res: 1.4142156862745097
+
+
+(sqrt 3)
+;;|| --- Result --- ||
+;;|| Res: 1.7321428571428572
+
+
+(sqrt 1.44)
+;;|| --- Result --- ||
+;;|| Res: 1.2001639344262296
+
+
+(sqrt 361)
+;;|| --- Result --- ||
+;;|| Res: 19.000000000073427

@@ -45,6 +45,95 @@ namespace Marionette.Runtime {
   public class EvalList: ResultList<Value, Environment> {
     public EvalList() {}
 
+    private Value EvaluateDefine(Environment env) {
+      if (list.Count < 3) {
+        throw new RuntimeException("Expect `(define name (stmt)* value).`", Loc);
+      }
+      if (list[1] is EvalSymbol name) {
+        var value = list[2].Evaluate(env);
+        env.Add(name.Name, value);
+        return new UnitValue();
+      }
+      else if (list[1] is EvalList lst) {
+        var symbols = lst.AsSymbolList();
+        if (symbols.IsEmpty()) {
+          var loc = Location.Empty();
+          if (list[1] is LocatableData ld) {
+            loc = ld.Loc;
+          }
+          throw new RuntimeException("Empty function declaration.", loc);
+        }
+
+        var nest = new Environment(env);
+        for (int i = 2; i < list.Count - 1; ++i) {
+          list[i].Evaluate(nest);
+        }
+
+        var fname = symbols[0].Name;
+        symbols.RemoveAt(0);
+        var bindings = symbols.Map(sym => sym.Name);
+        env.Add(fname, new Closure(bindings.ToArray(), nest, list[list.Count - 1]));
+        return new UnitValue();
+      }
+      else {
+        var loc = Location.Empty();
+        if (list[1] is LocatableData ld) {
+          loc = ld.Loc;
+        }
+        throw new RuntimeException("Expect symbol or parameter list.", loc);
+      }
+    }
+
+    private Value EvaluateIf(Environment env) {
+      if (list.Count != 4) {
+        throw new RuntimeException("Expect `(if condition res alt).`", Loc);
+      }
+        
+      var cond = list[1].Evaluate(env);
+      if (cond is LiteralValue<bool> boolCond) {
+        if (boolCond.Value) {
+          return list[2].Evaluate(env);
+        }
+        else {
+          return list[3].Evaluate(env);
+        }
+      }
+      else {
+        throw new RuntimeException("Expect boolean condition.`", Loc);
+      }
+    }
+
+    private Value EvaluateCond(Environment env) {
+      if (list.Count < 2) {
+        throw new RuntimeException("Expect `(cond (condition res)*).`", Loc);
+      }
+
+      for (int i = 1; i < list.Count; ++i) {
+        if (list[i] is EvalList checkList && checkList.list.Count == 2) {
+          if (checkList.list[0] is EvalSymbol syme && syme.IsElse) {
+            return checkList.list[1].Evaluate(env);
+          }
+          else {
+            var cond = checkList.list[0].Evaluate(env);
+            if (cond is LiteralValue<bool> boolCond) {
+              if (boolCond.Value) {
+                return checkList.list[1].Evaluate(env);
+              }
+            }
+            else {
+              throw new RuntimeException("Expect boolean condition.`", checkList.Loc);
+            }
+          }
+        }
+        else if (list[i] is LocatableData d) {
+          throw new RuntimeException("Expect `(condition res).`", d.Loc);
+        }
+        // Impossible
+      }
+
+      throw new RuntimeException("Unexhausted cond expression.`", Loc);
+    }
+
     public override Value Evaluate(Environment env){
       if (list.IsEmpty()) {
         throw new RuntimeException("Empty invocation.", Loc);
@@ -52,85 +141,13 @@ namespace Marionette.Runtime {
 
       Debug.LogFormat("Evalueate {0}", ToString());
       if (list[0] is EvalSymbol sym && sym.IsDefine) {
-        if (list.Count != 3) {
-          throw new RuntimeException("Expect `(define name value).`", Loc);
-        }
-        if (list[1] is EvalSymbol name) {
-          var value = list[2].Evaluate(env);
-          env.Add(name.Name, value);
-          return new UnitValue();
-        }
-        else if (list[1] is EvalList lst) {
-          var symbols = lst.AsSymbolList();
-          if (symbols.IsEmpty()) {
-            var loc = Location.Empty();
-            if (list[1] is LocatableData ld) {
-              loc = ld.Loc;
-            }
-            throw new RuntimeException("Empty function declaration.", loc);
-          }
-
-          var fname = symbols[0].Name;
-          symbols.RemoveAt(0);
-          var bindings = symbols.Map(sym => sym.Name);
-          env.Add(fname, new Closure(bindings.ToArray(), env, list[2]));
-          return new UnitValue();
-        }
-        else {
-          var loc = Location.Empty();
-          if (list[1] is LocatableData ld) {
-            loc = ld.Loc;
-          }
-          throw new RuntimeException("Expect symbol or parameter list.", loc);
-        }
+        return EvaluateDefine(env);
       }
       else if (list[0] is EvalSymbol symi && symi.IsIf) {
-        if (list.Count != 4) {
-          throw new RuntimeException("Expect `(if condition res alt).`", Loc);
-        }
-        
-        var cond = list[1].Evaluate(env);
-        if (cond is LiteralValue<bool> boolCond) {
-          if (boolCond.Value) {
-            return list[2].Evaluate(env);
-          }
-          else {
-            return list[3].Evaluate(env);
-          }
-        }
-        else {
-          throw new RuntimeException("Expect boolean condition.`", Loc);
-        }
+        return EvaluateIf(env);
       }
       else if (list[0] is EvalSymbol symc && symc.IsCond) {
-        if (list.Count < 2) {
-          throw new RuntimeException("Expect `(cond (condition res)*).`", Loc);
-        }
-
-        for (int i = 1; i < list.Count; ++i) {
-          if (list[i] is EvalList checkList && checkList.list.Count == 2) {
-            if (checkList.list[0] is EvalSymbol syme && syme.IsElse) {
-              return checkList.list[1].Evaluate(env);
-            }
-            else {
-              var cond = checkList.list[0].Evaluate(env);
-              if (cond is LiteralValue<bool> boolCond) {
-                if (boolCond.Value) {
-                  return checkList.list[1].Evaluate(env);
-                }
-              }
-              else {
-                throw new RuntimeException("Expect boolean condition.`", checkList.Loc);
-              }
-            }
-          }
-          else if (list[i] is LocatableData d) {
-            throw new RuntimeException("Expect `(condition res).`", d.Loc);
-          }
-          // Impossible
-        }
-
-        throw new RuntimeException("Unexhausted cond expression.`", Loc);
+        return EvaluateCond(env);
       }
       else {
         var fun = list[0].Evaluate(env);
