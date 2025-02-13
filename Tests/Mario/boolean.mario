@@ -34,10 +34,8 @@ show-and-ret
 ;;|| Res: 114514
 
 
-:fixme short circuit 
 (and #f (show-and-ret #f))
 ;;|| --- Result --- ||
-;;|| > False
 ;;|| Res: False
 
 
@@ -49,7 +47,6 @@ show-and-ret
 
 (or #t (show-and-ret #f))
 ;;|| --- Result --- ||
-;;|| > False
 ;;|| Res: True
 
 

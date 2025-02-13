@@ -31,6 +31,31 @@ namespace Marionette.Runtime {
     }
   }
 
+  // TODO: use quote instead?
+  class LazyValue: Value {
+    private IEvaluatable<Value, Environment> expr;
+    private Environment env;
+    private Value? value = null;
+
+    public LazyValue(IEvaluatable<Value, Environment> expr, Environment env) {
+      this.expr = expr;
+      this.env = env;
+    }
+
+    public Value EvaluateAndCache() {
+      value ??= expr.Evaluate(env);
+      return value;
+    }
+
+    public override string Show() {
+      return "[Lazy Value]";
+    }
+
+    public override string ToString() {
+      return "[Lazy Value]";
+    }
+  }
+
   public class Closure : Value {
     private string[] bindings;
     private Environment environment;
@@ -71,6 +96,10 @@ namespace Marionette.Runtime {
         throw new RuntimeException(ex.Message, loc);
       }
     }
+  }
+
+  public class LazyClosure: Closure {
+    public LazyClosure(string[] bindings, Environment environment, IEvaluatable<Value, Environment> body) : base(bindings, environment, body) {}
   }
 
   public class UnitValue : Value {

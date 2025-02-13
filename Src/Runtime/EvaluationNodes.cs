@@ -51,7 +51,7 @@ namespace Marionette.Runtime {
       this.result = result;
     }
 
-    public Value Evaluate(Environment env){
+    public Value Evaluate(Environment env) {
       var nest = new Environment(env);
       foreach (var s in statements) {
         s.Evaluate(nest);
@@ -170,7 +170,14 @@ namespace Marionette.Runtime {
       }
       else {
         var fun = list[0].Evaluate(env);
-        if (fun is Closure closure) {
+        if (fun is LazyClosure lazyClosure) {
+          var values = new List<Value>();
+          for (int i = 1; i < list.Count; ++i) {
+            values.Add(new LazyValue(list[i], env));
+          }
+          return lazyClosure.Evaluate(values.ToArray(), Loc);
+        }
+        else if (fun is Closure closure) {
           var values = new List<Value>();
           for (int i = 1; i < list.Count; ++i) {
             values.Add(list[i].Evaluate(env));
@@ -186,7 +193,12 @@ namespace Marionette.Runtime {
 
   public class EvalSymbol: Symbol<Value, Environment> {
     public override Value Evaluate(Environment env){
-      return env.GetOrElse(name, n => throw new RuntimeException(string.Format("name not found: {0}", n), Loc));
+      var res = env.GetOrElse(name, n => throw new RuntimeException(string.Format("name not found: {0}", n), Loc));
+      if (res is LazyValue lazyValue) {
+        return lazyValue.EvaluateAndCache();
+      }
+
+      return res;
     }
 
     public EvalSymbol(string name) : base(name) {}

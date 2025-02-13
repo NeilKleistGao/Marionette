@@ -174,7 +174,7 @@ namespace Marionette.Runtime {
     }
 
     public static new void CreateOperator(Environment env, string name) {
-      env.Add(name, new Closure([LHS_NAME, RHS_NAME], env, new ShortCircuitOperator(name)));
+      env.Add(name, new LazyClosure([LHS_NAME, RHS_NAME], env, new ShortCircuitOperator(name)));
     }
   }
 
