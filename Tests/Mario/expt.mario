@@ -1,0 +1,28 @@
+(define (expt b n)
+  (if (= n 0) 1 (* b (expt b (- n 1)))))
+
+
+(expt 3 3)
+;;|| --- Result --- ||
+;;|| Res: 27
+
+
+(expt 2 10)
+;;|| --- Result --- ||
+;;|| Res: 1024
+
+
+(define (expt' b n)
+  (define (iter r i)
+    (if (= i 0) r (iter (* b r) (- i 1))))
+  (iter 1 n))
+
+
+(expt' 3 3)
+;;|| --- Result --- ||
+;;|| Res: 27
+
+
+(expt' 2 10)
+;;|| --- Result --- ||
+;;|| Res: 1024

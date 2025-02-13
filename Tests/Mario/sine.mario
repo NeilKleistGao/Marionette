@@ -1,0 +1,29 @@
+(define (cube x) (* (* x x) x))
+
+(define (p x) (- (* 3 x) (* 4 (cube x))))
+
+(define (abs x)
+  (if (< x 0) (neg x) x))
+
+(define (sine angle)
+  (if (not (> (abs angle) 0.01)) angle (p (sine (/ angle 3.0)))))
+
+
+(sine 0)
+;;|| --- Result --- ||
+;;|| Res: 0
+
+
+(sine 3.14)
+;;|| --- Result --- ||
+;;|| Res: 0.0015829436657752716
+
+
+(sine (/ 3.14 2))
+;;|| --- Result --- ||
+;;|| Res: 0.9999996915704826
+
+
+(sine 12.15)
+;;|| --- Result --- ||
+;;|| Res: -0.40438666108762367

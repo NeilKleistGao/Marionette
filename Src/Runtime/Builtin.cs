@@ -90,7 +90,7 @@ namespace Marionette.Runtime {
         res = i1.Value.CompareTo(i2.Value);
       }
       else if (lhs is LiteralValue<int> i && rhs is LiteralValue<double> d) {
-        res = i.Value.CompareTo(d.Value);
+        res = d.Value.CompareTo(i.Value);
       }
       else if (lhs is LiteralValue<double> d2 && rhs is LiteralValue<int> i3) {
         res = d2.Value.CompareTo(i3.Value);
@@ -193,8 +193,8 @@ namespace Marionette.Runtime {
           if (value is LiteralValue<int> i) {
             return new LiteralValue<int>(-i.Value);
           }
-          else if (value is LiteralValue<float> f) {
-            return new LiteralValue<float>(-f.Value);
+          else if (value is LiteralValue<double> f) {
+            return new LiteralValue<double>(-f.Value);
           }
           else {
             throw new RuntimeException(string.Format("{0} is not a numeric expression.", value?.Show()));
