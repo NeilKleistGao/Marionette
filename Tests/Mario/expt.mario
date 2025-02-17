@@ -57,3 +57,17 @@
 ;;|| --- Result --- ||
 ;;|| Res: 1024
 
+
+(define (double x) (* 2 x))
+(define (halve x) (/ x 2))
+
+
+(define (my-mult x y)
+  (cond ((= y 0) 0)
+        ((even? y) (double (my-mult x (halve y))))
+        (else (+ x (my-mult x (- y 1))))))
+
+
+(my-mult 3 4)
+;;|| --- Result --- ||
+;;|| Res: 12
