@@ -228,4 +228,28 @@ namespace Marionette.Runtime {
       env.Add(name, new Closure([OPRAND_NAME], env, new UnaryOperator(name)));
     }
   }
+
+  public class NoParamFunction: IEvaluatable<Value, Environment> {
+    private string name;
+
+    private NoParamFunction(string name) {
+      this.name = name;
+    }
+
+    public Value Evaluate(Environment env) {
+      switch (name) {
+        case "random":
+          var rng = new Random();
+          return new LiteralValue<double>(rng.NextDouble());
+        case "runtime":
+          return new LiteralValue<int>(env.Runtime);
+      }
+
+      throw new RuntimeException(string.Format("{0} cannot be used as a builtin symbol here.", name));
+    }
+
+    public static void CreateOperator(Environment env, string name) {
+      env.Add(name, new Closure([], env, new NoParamFunction(name)));
+    }
+  }
 } // namespace Marionette.Runtime

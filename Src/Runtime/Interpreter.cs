@@ -7,6 +7,8 @@ namespace Marionette.Runtime {
 
     private Environment? parent = null;
 
+    private Interpreter? interpreter = null;
+
     private Environment() {
       BinaryOperator.CreateOperator(this, "+");
       BinaryOperator.CreateOperator(this, "-");
@@ -23,10 +25,21 @@ namespace Marionette.Runtime {
       UnaryOperator.CreateOperator(this, "neg");
       UnaryOperator.CreateOperator(this, "not");
       UnaryOperator.CreateOperator(this, "display");
+      NoParamFunction.CreateOperator(this, "random");
+      NoParamFunction.CreateOperator(this, "runtime");
+    }
+
+    public Interpreter ParentInterpreter {
+      set { interpreter = value; }
+    }
+
+    public int Runtime {
+      get => interpreter?.Runtime ?? -1;
     }
 
     public Environment(Environment parent) {
       this.parent = parent;
+      interpreter = parent.interpreter;
     }
 
     private static Environment globalEnvironment = new Environment();
@@ -55,6 +68,16 @@ namespace Marionette.Runtime {
   public class Interpreter {
 
     private Environment env = Environment.GlobalEnvironment();
+    private DateTime startTime;
+
+    public Interpreter() {
+      startTime = DateTime.Now;
+      env.ParentInterpreter = this;
+    }
+
+    public int Runtime {
+      get => (DateTime.Now - startTime).Milliseconds;
+    }
 
     private ResultList<Value, Environment> AllocateList() {
       return new EvalList();

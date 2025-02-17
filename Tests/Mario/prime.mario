@@ -1,0 +1,51 @@
+(define (divides? a b)
+  (= (% a b) 0))
+
+(define (square n) (* n n))
+
+(define (find-divisor n test)
+  (cond ((> (square test) n) n)
+        ((divides? n test) test)
+        (else (find-divisor n (+ test 1)))))
+
+(define (smallest-divisor n)
+  (find-divisor n 2))
+
+
+(smallest-divisor 10)
+;;|| --- Result --- ||
+;;|| Res: 2
+
+
+(smallest-divisor 17)
+;;|| --- Result --- ||
+;;|| Res: 17
+
+
+(smallest-divisor 114)
+;;|| --- Result --- ||
+;;|| Res: 2
+
+
+(smallest-divisor 91)
+;;|| --- Result --- ||
+;;|| Res: 7
+
+
+(define (prime? n)
+  (= n (smallest-divisor n)))
+
+
+(prime? 2)
+;;|| --- Result --- ||
+;;|| Res: True
+
+(prime? 114)
+;;|| --- Result --- ||
+;;|| Res: False
+
+(prime? 19)
+;;|| --- Result --- ||
+;;|| Res: True
+
+
