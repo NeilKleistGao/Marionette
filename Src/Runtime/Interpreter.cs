@@ -12,6 +12,7 @@ namespace Marionette.Runtime {
       BinaryOperator.CreateOperator(this, "-");
       BinaryOperator.CreateOperator(this, "*");
       BinaryOperator.CreateOperator(this, "/");
+      BinaryOperator.CreateOperator(this, "%");
       BinaryOperator.CreateOperator(this, ">");
       BinaryOperator.CreateOperator(this, ">=");
       BinaryOperator.CreateOperator(this, "<");

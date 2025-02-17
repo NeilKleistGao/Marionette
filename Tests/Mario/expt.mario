@@ -26,3 +26,34 @@
 (expt' 2 10)
 ;;|| --- Result --- ||
 ;;|| Res: 1024
+
+
+(define (even? n)
+  (= (% n 2) 0))
+
+
+(even? 1)
+;;|| --- Result --- ||
+;;|| Res: False
+
+(even? 42)
+;;|| --- Result --- ||
+;;|| Res: True
+
+
+(define (square n) (* n n))
+
+(define (fast-expt b n)
+  (cond ((= n 0) 1)
+        ((even? n) (square (fast-expt b (/ n 2))))
+        (else (* b (fast-expt b (- n 1))))))
+
+(fast-expt 3 3)
+;;|| --- Result --- ||
+;;|| Res: 27
+
+
+(fast-expt 2 10)
+;;|| --- Result --- ||
+;;|| Res: 1024
+

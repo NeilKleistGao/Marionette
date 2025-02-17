@@ -84,6 +84,14 @@ namespace Marionette.Runtime {
       throw new RuntimeException(string.Format("cannot divide {0} by {1}.", lhs.Show(), rhs.Show()));
     }
 
+    private Value Mod(Value lhs, Value rhs) {
+      if (lhs is LiteralValue<int> i1 && rhs is LiteralValue<int> i2) {
+        return new LiteralValue<int>(i1.Value % i2.Value);
+      }
+
+      throw new RuntimeException(string.Format("cannot compute {0} modulo {1}.", lhs.Show(), rhs.Show()));
+    }
+
     private Value Compare(Value lhs, Value rhs, Func<int, bool> pred) {
       int? res = null;
       if (lhs is LiteralValue<int> i1 && rhs is LiteralValue<int> i2) {
@@ -123,6 +131,8 @@ namespace Marionette.Runtime {
           return Mult(lhs, rhs);
         case "/":
           return Div(lhs, rhs);
+        case "%":
+          return Mod(lhs, rhs);
         case ">":
           return Compare(lhs, rhs, (x) => x > 0); 
         case ">=":

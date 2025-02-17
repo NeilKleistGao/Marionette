@@ -61,8 +61,8 @@ namespace Marionette.Parser {
       if (rest.IsEmpty()) {
         return allocateEOF();
       }
-      else if (rest.StartsWith(";;")) {
-        Consume(2);
+      else if (rest.StartsWith(";")) {
+        Consume(1);
         int index = rest.IndexOf('\n');
         if (index < 0) {
           ConsumeAll();
