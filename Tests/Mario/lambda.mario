@@ -1,0 +1,24 @@
+(lambda (x) x)
+;;|| --- Result --- ||
+;;|| Res: [Function]
+
+
+((lambda (x) (+ x 1)) 2)
+;;|| --- Result --- ||
+;;|| Res: 3
+
+
+:e
+(lambda)
+;;|| --- Result --- ||
+;;|| [Runtime Error]: Expect `(lambda (params) body).`
+;;||  12 | (lambda)
+;;||       ^^^^^^^^
+
+
+(define add (lambda (x y) (+ x y)))
+
+
+(add 10 10)
+;;|| --- Result --- ||
+;;|| Res: 20

@@ -93,6 +93,8 @@ namespace Marionette.Parser {
 
     public bool IsElse { get => name == "else"; }
 
+    public bool IsLambda { get => name == "lambda"; }
+
     public string Name { get => name; }
 
     public override string ToString(){

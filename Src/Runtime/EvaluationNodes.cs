@@ -153,6 +153,26 @@ namespace Marionette.Runtime {
       throw new RuntimeException("Unexhausted cond expression.`", Loc);
     }
 
+    private Value EvaluateLambda(Environment env) {
+      if (list.Count != 3) {
+        throw new RuntimeException("Expect `(lambda (params) body).`", Loc);
+      }
+
+      if (list[1] is EvalList lst) {
+        var symbols = lst.AsSymbolList();
+        var statements = new List<IEvaluatable<Value, Environment>>();
+        for (int i = 2; i < list.Count - 1; ++i) {
+          statements.Add(list[i]);
+        }
+
+        var bindings = symbols.Map(sym => sym.Name);
+        return new Closure(bindings.ToArray(), env, new Block(statements, list[list.Count - 1]));
+      }
+      else {
+        throw new RuntimeException("Expect `(lambda (params) body).`", Loc);
+      }
+    }
+
     public override Value Evaluate(Environment env) {
       if (list.IsEmpty()) {
         throw new RuntimeException("Empty invocation.", Loc);
@@ -167,6 +187,9 @@ namespace Marionette.Runtime {
       }
       else if (list[0] is EvalSymbol symc && symc.IsCond) {
         return EvaluateCond(env);
+      }
+      else if (list[0] is EvalSymbol syml && syml.IsLambda) {
+        return EvaluateLambda(env);
       }
       if (list[0] is EvalSymbol syme && syme.IsElse) {
         throw new RuntimeException("Unexpected else expression.", Loc);
