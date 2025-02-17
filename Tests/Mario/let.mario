@@ -26,5 +26,5 @@
 (let (+ 1 1) 1)
 ;;|| --- Result --- ||
 ;;|| [Runtime Error]: Expect binding form `(var value)`.
-;;||  22 | (let (+ 1 1) 1)
+;;||  26 | (let (+ 1 1) 1)
 ;;||       ^^^^^^^^^^^^^^^
