@@ -1,0 +1,30 @@
+(let
+  ((x 1) (y 2))
+  (+ x y))
+;;|| --- Result --- ||
+;;|| Res: 3
+
+
+(let
+  ((x1 1)
+   (x2 (+ x1 1))
+   (x3 (+ x2 1)))
+   (+ x3 1))
+;;|| --- Result --- ||
+;;|| Res: 4
+
+
+:e
+(let 1 2 3)
+;;|| --- Result --- ||
+;;|| [Runtime Error]: Expect `(let ((var value)*) body)`.
+;;||  18 | (let 1 2 3)
+;;||       ^^^^^^^^^^^
+
+
+:e
+(let (+ 1 1) 1)
+;;|| --- Result --- ||
+;;|| [Runtime Error]: Expect binding form `(var value)`.
+;;||  22 | (let (+ 1 1) 1)
+;;||       ^^^^^^^^^^^^^^^

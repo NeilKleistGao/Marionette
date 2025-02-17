@@ -173,6 +173,29 @@ namespace Marionette.Runtime {
       }
     }
 
+    private Value EvaluateLet(Environment env) {
+      if (list.Count != 3) {
+        throw new RuntimeException("Expect `(let ((var value)*) body)`.", Loc);
+      }
+
+      if (list[1] is EvalList lst) {
+        var nest = new Environment(env);
+        foreach (var bind in lst.list) {
+          if (bind is EvalList pair && pair.list.Count == 2 && pair.list[0] is EvalSymbol sym) {
+            nest.Add(sym.Name, pair.list[1].Evaluate(nest));
+          }
+          else {
+            throw new RuntimeException("Expect binding form `(var value)`.", Loc);
+          }
+        }
+
+        return list[2].Evaluate(nest);
+      }
+      else {
+        throw new RuntimeException("Expect binding list.", Loc);
+      }
+    }
+
     public override Value Evaluate(Environment env) {
       if (list.IsEmpty()) {
         throw new RuntimeException("Empty invocation.", Loc);
@@ -190,6 +213,9 @@ namespace Marionette.Runtime {
       }
       else if (list[0] is EvalSymbol syml && syml.IsLambda) {
         return EvaluateLambda(env);
+      }
+      else if (list[0] is EvalSymbol symt && symt.IsLet) {
+        return EvaluateLet(env);
       }
       if (list[0] is EvalSymbol syme && syme.IsElse) {
         throw new RuntimeException("Unexpected else expression.", Loc);
